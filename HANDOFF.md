@@ -175,15 +175,22 @@ Deleted in Cloud Console, August 2026. It was in the `fiji-donations` repo's git
 history permanently and stayed a working credential until then. The new key was
 already in use, so nothing broke.
 
-### 5. Add the Decap integrity hash
+### 5. ✅ Add the Decap integrity hash — DONE
 
-`public/admin/index.html` pins `decap-cms@3.8.4` but has no `integrity`
-attribute yet. Generate and paste it:
+`public/admin/index.html` pins `decap-cms@3.8.4` and now carries the matching
+`integrity` hash. Regenerate it whenever the pinned version changes — the
+command and the failure mode are both documented in that file.
 
 ```bash
-curl -s https://unpkg.com/decap-cms@3.8.4/dist/decap-cms.js \
-  | openssl dgst -sha384 -binary | openssl base64 -A
+curl -sL https://unpkg.com/decap-cms@VERSION/dist/decap-cms.js -o /tmp/decap.js
+ls -l /tmp/decap.js
+openssl dgst -sha384 -binary /tmp/decap.js | openssl base64 -A; echo
 ```
+
+Check the size before trusting the hash — the real bundle is around 5 MB, and a
+few hundred bytes means you hashed a redirect page. **Note for zsh:** `#`
+comments are not enabled in an interactive shell, so do not paste commands with
+trailing comments; `~2-3 MB` gets read as a home directory and the line fails.
 
 ### 6. Test on a real phone — first pass done, keep doing it
 
@@ -208,7 +215,30 @@ so `npm run preview` looks different from `npm run dev`.
 - **A button label was longer than the card holding it** on `/donations`,
   shortened to "See our recognized donors".
 
-### 7. Confirm the chapter email spelling
+### 7. Cut DNS over to tamufiji.info — DO THIS LAST
+
+**Three changes that must land together.** Miss one and the symptom is silence,
+not an error.
+
+1. Point the domain at Vercel and set `tamufiji.info` as the project's primary
+   domain.
+2. Change `base_url` in `public/admin/config.yml` from the `.vercel.app` address
+   to `https://tamufiji.info`.
+3. Add `https://tamufiji.info/api/callback` as a Redirect URI on the GitHub
+   OAuth app.
+
+**2 and 3 are one change in two places.** If they disagree, the login popup
+hangs on "Completing sign-in" forever with nothing in the console, because a
+`postMessage` to the wrong origin is dropped silently — see the long comment in
+`src/app/api/callback/route.ts`. The popup now swaps in an explanation after ten
+seconds rather than spinning, so at least the failure names itself.
+
+Afterwards: log in at `/admin` and publish a trivial change to confirm the round
+trip still works, then submit `sitemap.xml` to Google. `NEXT_PUBLIC_SITE_URL` is
+already `https://tamufiji.info`, so the sitemap has been advertising the right
+URLs all along — it is only correct once DNS actually resolves here.
+
+### 8. Confirm the chapter email spelling
 
 The site uses `fijitamu@gmail.com`; it was once given as `fiijitamu@gmail.com`.
 A wrong contact address is precisely how the old site failed.
@@ -263,12 +293,9 @@ the label can't carry the whole answer, a rotating homepage giving figure.
 
 ## Still open
 
-- **Gallery images ship `alt=""`** because all five captions are empty, and the
-  CMS marks caption required — so an officer cannot re-save a photo without
-  inventing one. Needs either real captions or a schema change.
-- **`page.title` on `/donations` and `/about`** still uses `(page.title as
-  string) || "…"` rather than an `isTodo()` guard. Two one-line fixes; every
-  other instance of that leak is closed.
+- **Gallery images ship `alt=""`** because all five captions are empty. The CMS
+  no longer marks caption required, so this is now purely a content task — see
+  `CONTENT-TODO.md`.
 - **No script CSP.** Deliberate — see the reasoning in `next.config.ts`. The
   other security headers are set.
 - **CMS `donations` collection is broader than its two remaining files.** It

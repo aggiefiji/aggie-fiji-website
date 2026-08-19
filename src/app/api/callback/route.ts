@@ -46,29 +46,66 @@ function toScriptLiteral(value: string): string {
  * this same deployment, so the opener is always same-origin and the target can
  * be pinned to this exact origin instead. Deliberately stricter than the
  * reference implementations.
+ *
+ * ── THE FAILURE THIS PINNING CAUSES, AND WHY THE TIMEOUT IS HERE ────────────
+ * A postMessage to the wrong origin is DROPPED SILENTLY. No error, no
+ * rejection, nothing in the console — the popup simply waits forever. So when
+ * the opener is not on this origin, the officer sees "Completing sign-in"
+ * and nothing else, which reads as a hung server rather than a misconfiguration.
+ *
+ * That happens whenever `base_url` in public/admin/config.yml and the origin
+ * actually being browsed disagree. Two ways to get there, and the second is
+ * scheduled:
+ *   1. Opening /admin on localhost while base_url points at the deployment.
+ *      Expected — local editing is meant to use `local_backend` and
+ *      `npx decap-server`, which does not involve GitHub at all.
+ *   2. AT DNS CUTOVER, if base_url moves to the new domain without the matching
+ *      Redirect URI being added to the GitHub OAuth app, or the reverse. That
+ *      breaks publishing for every officer at once, silently.
+ *
+ * Hence the timeout below. It cannot fix either case, but it names them, which
+ * is the difference between a five-minute fix and a lost afternoon.
  */
+const STALLED_MESSAGE =
+  "Sign-in did not complete. The admin screen that opened this window is on a " +
+  "different address than this one, so the browser blocked the reply. Check that " +
+  "base_url in public/admin/config.yml is the address you are actually browsing, " +
+  "and that the same address is registered as the Redirect URI on the GitHub " +
+  "OAuth app. To edit the site on your own machine, run npx decap-server instead " +
+  "— local editing does not use GitHub sign-in.";
+
 function handshakePage(message: string, origin: string): NextResponse {
   const html = `<!doctype html>
 <html lang="en">
   <head><meta charset="utf-8"><title>Signing in…</title></head>
   <body>
-    <p>Completing sign-in — this window closes itself.</p>
+    <p id="status">Completing sign-in — this window closes itself.</p>
     <script>
       (function () {
         var message = ${toScriptLiteral(message)};
         var target = ${toScriptLiteral(origin)};
+        var stalled = ${toScriptLiteral(STALLED_MESSAGE)};
+        var answered = false;
         function relay(event) {
           if (event.origin !== target) return;
+          answered = true;
           window.opener.postMessage(message, target);
           window.removeEventListener("message", relay, false);
         }
         if (!window.opener) {
-          document.body.textContent =
+          document.getElementById("status").textContent =
             "Open the admin screen and use the Login button there.";
           return;
         }
         window.addEventListener("message", relay, false);
         window.opener.postMessage("authorizing:github", target);
+        // The admin replies in milliseconds when the origins agree. Ten seconds
+        // is long enough that a slow network never trips this, and short enough
+        // that nobody sits staring at a sentence that will never change.
+        window.setTimeout(function () {
+          if (answered) return;
+          document.getElementById("status").textContent = stalled;
+        }, 10000);
       })();
     </script>
   </body>

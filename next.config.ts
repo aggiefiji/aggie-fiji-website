@@ -57,6 +57,29 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+
+  /**
+   * /admin IS A STATIC FILE, AND dev SERVES IT DIFFERENTLY FROM PRODUCTION.
+   *
+   * The CMS is `public/admin/index.html` — a plain file, not a route. Vercel's
+   * static hosting resolves a directory request to its index.html, so /admin
+   * works in production. `next dev` does not: it serves files from /public by
+   * exact path, so /admin falls through to the App Router, matches nothing, and
+   * renders the 404 page.
+   *
+   * That divergence is worse than it sounds. The one time anybody opens the
+   * admin locally is to check a change before publishing it — and the failure
+   * looks exactly like "I broke the admin screen" rather than "dev resolves
+   * paths differently". It cost time once already, after the integrity hash
+   * went in.
+   *
+   * This rewrite makes both environments answer /admin the same way. It is a
+   * rewrite and not a redirect on purpose: the URL has to stay /admin, because
+   * the GitHub OAuth callback and the config path are written against it.
+   */
+  async rewrites() {
+    return [{ source: "/admin", destination: "/admin/index.html" }];
+  },
 };
 
 export default nextConfig;

@@ -42,9 +42,7 @@ separate platforms and is deliberately not advertised here.
       which works but makes for an unusably long memo.
 - [ ] **Gallery captions.** All five photos have an empty caption. The photos
       render fine without them, but an empty caption also means the image has no
-      alt text for screen readers or when a photo fails to load. Note the CMS
-      currently marks caption **required**, so an officer cannot re-save an
-      existing photo without inventing one — flagged in `HANDOFF.md`.
+      alt text for screen readers or when a photo fails to load.
 - [ ] **Chapter founding year.** `site.json` → `foundedChapter` is still a TODO.
       Renders nothing until filled.
 - [ ] **Summer 2026 newsletter PDF.** The issue is listed but has no file, so it

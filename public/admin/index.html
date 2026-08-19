@@ -47,10 +47,22 @@
          not load, which is the correct failure. Do not delete the attribute to
          "fix" it.
 
-      TODO (launch): the integrity attribute is not set yet. Run the command in
-      step 2 for version 3.8.4 and paste the result in. Until then the pin is
-      doing the heavy lifting; the hash is belt and braces on top of it.
+      The hash below was generated against the 5,204,917-byte bundle unpkg
+      served for 3.8.4 in August 2026. `crossorigin="anonymous"` is not
+      decoration — without it the browser will not check integrity on a
+      cross-origin script at all, so do not remove it either.
+
+      IF THE ADMIN SCREEN GOES BLANK after a Decap or CDN change, this is the
+      first thing to check: open the console and look for a message about the
+      integrity attribute. That means the file changed, not that the hash is
+      broken. Re-run step 2, read the release notes for what changed, and paste
+      the new value. Deleting the attribute makes the symptom go away by
+      removing the check, which is the one response that is always wrong.
     -->
-    <script src="https://unpkg.com/decap-cms@3.8.4/dist/decap-cms.js" crossorigin="anonymous"></script>
+    <script
+      src="https://unpkg.com/decap-cms@3.8.4/dist/decap-cms.js"
+      integrity="sha384-JNjmpWfdPuQ3I7ac38W0teoHcVxx7YdfDVpcgehfGqcu6ZBt26m/nmmBM2FzuO41"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
