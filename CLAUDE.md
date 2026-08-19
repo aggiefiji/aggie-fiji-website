@@ -150,7 +150,8 @@ twice and ships a generic page nobody sees.
   mental-health framing. Claude wrongly inferred that link once; don't repeat it.
   State only what the chapter has confirmed, and never attribute a cause of death
   the chapter has not published itself.
-- **One chapter inbox, no contact form.** `fijitamu@gmail.com`, read by the
+- **One chapter inbox, no contact form.** `fijitamu@gmail.com` — one `i`,
+  confirmed August 2026 against a `fiijitamu@` typo in an early note. Read by the
   President and the Treasurer, published as a mailto. A role inbox survives the
   yearly handover; a personal one does not. The old form showed a success message
   while sending nothing.

@@ -238,10 +238,10 @@ trip still works, then submit `sitemap.xml` to Google. `NEXT_PUBLIC_SITE_URL` is
 already `https://tamufiji.info`, so the sitemap has been advertising the right
 URLs all along — it is only correct once DNS actually resolves here.
 
-### 8. Confirm the chapter email spelling
+### 8. ✅ Confirm the chapter email spelling — DONE
 
-The site uses `fijitamu@gmail.com`; it was once given as `fiijitamu@gmail.com`.
-A wrong contact address is precisely how the old site failed.
+`fijitamu@gmail.com`, one `i`. Confirmed by the treasurer, August 2026. The
+double-`i` spelling in an early note was a typo.
 
 ---
 

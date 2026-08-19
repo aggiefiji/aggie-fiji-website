@@ -137,6 +137,14 @@ export function SiteFooter() {
               </a>
             </li>
           </ul>
+          {/* 1848 is hardcoded, deliberately. There were `foundedChapter`
+              and `foundedNational` fields in site.json and the CMS that
+              rendered nowhere at all — an officer could fill in the chapter's
+              founding year and watch nothing change anywhere on the site. Both
+              were deleted in August 2026 rather than wired up: the chapter was
+              asked and chose not to publish a founding year, and the national
+              date has not moved since 1848. If a founding year is ever wanted,
+              add the field AND the markup in the same change. */}
           <p className="mt-5 text-xs leading-relaxed text-cream/50">
             Founded 1848 at Jefferson College. This site is maintained by the active chapter and is
             not an official publication of Texas A&amp;M University.

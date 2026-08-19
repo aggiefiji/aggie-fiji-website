@@ -27,8 +27,6 @@ export interface SiteSettings {
   /** Greek-letter designation, e.g. "Alpha Mu Chapter". */
   chapterDesignation: string;
   university: string;
-  foundedChapter: string;
-  foundedNational: string;
   tagline: string;
   /**
    * Google Form where alumni update their contact details. Lives here rather
@@ -290,8 +288,6 @@ export function getSiteSettings(): SiteSettings {
     chapterNickname: "Aggie FIJI",
     chapterDesignation: "Alpha Mu Chapter",
     university: "Texas A&M University",
-    foundedChapter: "",
-    foundedNational: "1848",
     tagline: "",
     alumniUpdateFormUrl: "",
     social: {},

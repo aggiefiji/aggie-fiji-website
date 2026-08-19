@@ -189,8 +189,6 @@ collections:
           - { name: "chapterNickname", label: "Chapter nickname", widget: "string", required: false, hint: "What the chapter calls itself, e.g. \"Aggie FIJI\". Leads the headline on the homepage." }
           - { name: "chapterDesignation", label: "Chapter designation", widget: "string", required: false, hint: "Greek-letter name, e.g. \"Alpha Mu Chapter\"." }
           - { name: "university", label: "University", widget: "string" }
-          - { name: "foundedChapter", label: "Chapter founded", widget: "string", required: false }
-          - { name: "foundedNational", label: "Fraternity founded", widget: "string", required: false }
           - { name: "tagline", label: "Tagline", widget: "string", required: false }
           - { name: "alumniUpdateFormUrl", label: "Alumni contact-update form", widget: "string", required: false, hint: "Public link to the Google Form where alumni update their details. Use the /viewform link, NOT the /edit one. Leave blank to hide the button." }
           - name: "social"

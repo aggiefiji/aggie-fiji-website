@@ -20,9 +20,9 @@ separate platforms and is deliberately not advertised here.
 - [x] **Chapter contact details — done.** One inbox, `fijitamu@gmail.com`,
       monitored by the President and the Treasurer. Mail goes to the P.O. box;
       the Lodge address is listed as a place to visit, not to post to.
-      **Still worth confirming the spelling** — it was once given as
-      `fiijitamu@gmail.com`, and a wrong contact address is how the old site
-      failed.
+      **Spelling confirmed August 2026: one `i`, `fijitamu@gmail.com`.** The
+      double-`i` `fiijitamu@gmail.com` seen in an early handover note was a
+      typo. Settled — do not "correct" it back.
 - [x] **Officer names — done.** All eight.
 - [ ] **Ben Powell's headshot.** Seven of eight are in. Square, roughly 800×800,
       under 300KB. Drop it in `public/officers/` and it gets wired up.
@@ -43,8 +43,6 @@ separate platforms and is deliberately not advertised here.
 - [ ] **Gallery captions.** All five photos have an empty caption. The photos
       render fine without them, but an empty caption also means the image has no
       alt text for screen readers or when a photo fails to load.
-- [ ] **Chapter founding year.** `site.json` → `foundedChapter` is still a TODO.
-      Renders nothing until filled.
 - [ ] **Summer 2026 newsletter PDF.** The issue is listed but has no file, so it
       is hidden from visitors entirely. Drop the PDF in `public/newsletters/`.
 - [ ] **Social handles.** `site.json` → `social`, editable in the CMS under
@@ -97,3 +95,8 @@ Recorded so nobody re-opens them.
 - **Wishlist category tags and their filter.** Removed after readers found them
   noise. The sheet's `Category` column is no longer displayed — keep using it to
   organise the sheet if it helps you.
+- **Chapter founding year.** The `foundedChapter` and `foundedNational` fields
+  were deleted in August 2026. They had been sitting in the CMS asking to be
+  filled while rendering on no page at all — the footer's "Founded 1848" is
+  plain text. Asked and answered: the chapter does not publish a founding year.
+  Wiring one up later means adding the field *and* the markup together.
