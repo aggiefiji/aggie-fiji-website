@@ -371,8 +371,11 @@ state distinguishes "we cannot reach the calendar" from "nothing scheduled".
 after Netlify Identity and Git Gateway turned out to be both deprecated and
 Netlify-only.
 
-**Analytics chosen:** Vercel Web Analytics. No cookie banner, free at this
-scale, one-month reporting window on the Hobby plan.
+**Analytics chosen:** Vercel Web Analytics, plus Speed Insights alongside it.
+No cookie banner, free at this scale. Reporting windows on Hobby are short and
+differ: one month for Web Analytics, **seven days** for Speed Insights. Both ride
+on the single `NEXT_PUBLIC_ANALYTICS_PROVIDER=vercel` variable, and each must
+also be enabled in its own dashboard tab.
 
 **Newsletter distribution and a payment processor were both declined** by the
 chapter and moved out of the pending list into `declinedIntegrations`.

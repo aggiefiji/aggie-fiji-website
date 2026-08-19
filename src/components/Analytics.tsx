@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { analytics } from "@/integrations.config";
 
 /**
@@ -20,8 +21,22 @@ import { analytics } from "@/integrations.config";
  * season beat last year". If year-over-year ever matters, Plausible keeps full
  * history for about $9/month and drops in below with no other change.
  *
+ * SPEED INSIGHTS rides along with the "vercel" branch rather than getting a
+ * switch of its own. It is the same vendor, the same free tier, and the same
+ * answer to "should this site be measured at all" — a second variable would only
+ * create a state where one is on and the other is off for no reason anybody
+ * later could reconstruct. It measures what real visitors experience, which
+ * matters here because mobile is constraint 4 and mobile is how the old site
+ * failed.
+ *
+ * ITS LIMIT IS TIGHTER THAN WEB ANALYTICS': a 7-day reporting window on Hobby,
+ * and 10,000 events a month, after which recording pauses until the next day.
+ * This site will not approach the cap. If it ever does, the package takes a
+ * `sampleRate` prop rather than needing to be removed.
+ *
  * The GA4 and Plausible branches are kept because switching provider should be
- * an environment variable, not a rewrite.
+ * an environment variable, not a rewrite. Neither carries Speed Insights —
+ * it is a Vercel product and only works on a Vercel deployment.
  */
 export function Analytics() {
   if (!analytics.enabled) return null;
@@ -33,7 +48,12 @@ export function Analytics() {
    * would report the first page of a visit and miss the rest.
    */
   if (analytics.provider === "vercel") {
-    return <VercelAnalytics />;
+    return (
+      <>
+        <VercelAnalytics />
+        <SpeedInsights />
+      </>
+    );
   }
 
   if (analytics.provider === "plausible") {

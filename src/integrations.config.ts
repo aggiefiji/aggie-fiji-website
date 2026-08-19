@@ -152,7 +152,13 @@ export const newsletter = {
  *
  * TO SWITCH IT ON: set NEXT_PUBLIC_ANALYTICS_PROVIDER=vercel in the Vercel
  * project's environment variables, and enable Web Analytics in the dashboard
- * (Project → Analytics). No ID is needed — the platform injects it.
+ * (Project → Analytics). No ID is needed — the platform injects it. It is a
+ * NEXT_PUBLIC_ variable, so it is baked in at build time — setting it on an
+ * existing deployment does nothing until a redeploy.
+ *
+ * THE SAME VARIABLE ALSO SWITCHES ON SPEED INSIGHTS (real-user page-speed
+ * measurement), enabled separately in the dashboard under Project → Speed
+ * Insights. One switch for both, deliberately — see src/components/Analytics.tsx.
  *
  * "plausible" and "ga4" still work and both need NEXT_PUBLIC_ANALYTICS_ID.
  * Plausible is the one to reach for if year-over-year comparison matters:
