@@ -277,6 +277,66 @@ double-`i` spelling in an early note was a typo.
 
 ---
 
+## What the chapter pays for — and what it should stop paying for
+
+Reviewed August 2026 from the Wix billing screen. **Every item below is a
+separate subscription.** Cancelling one does not cancel the others, which is the
+whole reason this is safe to unpick.
+
+| Subscription | Renews | Keep it? |
+|---|---|---|
+| **Domain `aggiefiji.com`** | 27 Jul 2027 | **YES — this is the only one that matters.** It is the name and the DNS control that points it at Vercel. |
+| Premium plan (Business) | 7 Aug 2027 | **No.** Turn off auto-renew after cutover. |
+| Domain `tamufiji.info` | 3 Nov 2028 | Auto-renew already off. Owned until then — see below. |
+| 2 business email users `@aggiefiji.com` | 23 Nov 2026 | Auto-renew already off. **Check before it lapses — see below.** |
+
+### Why the Premium plan can go
+
+A Wix Premium plan buys one thing: the right to serve a **Wix** site on your own
+domain, plus the hosting behind it. Without it a Wix site can only live at a
+`wix.com/...` URL with Wix's ads on it.
+
+Once DNS points at Vercel there is no Wix site, so there is nothing left for that
+plan to do. Vercel's Hobby plan hosts the site, connects the custom domain, shows
+no ads, and runs the analytics — all free at this scale. The Business tier
+specifically is the one you buy to **accept online payments**, and the chapter
+decided against a payment processor entirely (see constraint 5 in `CLAUDE.md`).
+
+**Turn off auto-renew rather than cancelling.** The plan is paid through Aug 2027
+either way — Wix's 14-day refund covers first-time purchases, not renewals — so
+cancelling early buys nothing and removes the old Wix site as a fallback while
+DNS settles.
+
+### ⚠️ The business email lapses 23 November 2026
+
+Two `@aggiefiji.com` mailboxes, auto-renew off. **Confirm nobody is using them
+before that date.** The site publishes `fijitamu@gmail.com` and nothing points at
+an `@aggiefiji.com` address, so this is probably dead weight — but email fails
+silently, and once mailboxes are released the contents are not coming back.
+
+**If they ARE in use, the MX records must survive the DNS change.** Use the
+pointing method in step 7 (edit the A and CNAME records at Wix) and MX is left
+alone. Switching to Vercel's nameservers would require recreating every record by
+hand, and mail breaks in the gap.
+
+### tamufiji.info is still owned until 3 November 2028
+
+Auto-renew is off, but the registration is paid through then. Free while it
+lasts: point it at `aggiefiji.com` as a **redirect** so anything printed with the
+old address still lands. A redirect is right here and wrong for the main domain —
+see step 7 for why.
+
+### The last handover dependency
+
+Keeping the domain at Wix means the chapter depends on **whoever owns that Wix
+account** for DNS. That is the same trap that moved the repo, the Google assets,
+and the OAuth app onto chapter-owned accounts. At the July 2027 renewal, moving
+the domain to a registrar under `fijitamu@gmail.com` would close the last one.
+
+---
+
+---
+
 ## What changed in the August 2026 pass
 
 **Giving was rebuilt end to end.** The three fund pages folded into `/donations`
