@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   DESIGN TOKENS — Texas A&M Phi Gamma Delta
+   ---------------------------------------------------------------------------
+   Sources of truth:
+     • Purples come from the chapter's existing site palette.
+     • Salmon/terracotta (#A05050) is sampled directly from the official
+       Texas A&M FIJI monogram in /public/brand/fiji-monogram.png.
+     • Royal blue, gold and rose are sampled from the official Phi Gamma Delta
+       crest in /public/brand/fiji-crest.png — use these for crest-adjacent
+       accents only, never as large background fields.
+
+   Change a color HERE and it changes everywhere on the site.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Primary purples */
+  --color-purple-950: #2a0e3a; /* deepest — hero overlays, footers */
+  --color-purple-900: #401457; /* PRIMARY — header, buttons, headings */
+  --color-purple-800: #3d1d5a; /* hero base */
+  --color-purple-600: #5b386a; /* footer / muted surfaces */
+  --color-purple-100: #ece4f1; /* tinted light surface */
+
+  /* Accent — from the A&M FIJI monogram */
+  --color-salmon-600: #8e4444; /* accessible salmon for text/links on light */
+  --color-salmon-500: #a05050; /* MONOGRAM salmon — buttons, rules, accents */
+  --color-salmon-400: #c07a74; /* hover / accents on dark */
+
+  /* Crest-derived */
+  --color-crest-royal: #232370;
+  --color-crest-gold: #c9a46b;
+  --color-crest-rose: #c0223c;
+
+  /* Neutrals */
+  --color-cream: #f7f1f1; /* near-white, text on dark */
+  --color-mauve: #917f90; /* secondary text */
+  --color-taupe: #aca3a3; /* borders, subtle accents */
+  --color-ink: #241a29; /* body text on light */
+
+  /* Type */
+  --font-serif: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Layout */
+  --spacing-gutter: 1.25rem;
+}
+
+/* --------------------------------------------------------------------------- */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  overflow-x: hidden; /* mobile-first: nothing ever spills the viewport */
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* The header is sticky, so in-page anchors need room to clear it. */
+[id] {
+  scroll-margin-top: 6rem;
+}
+
+/* Visible keyboard focus everywhere — accessibility baseline. */
+:focus-visible {
+  outline: 3px solid var(--color-salmon-500);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Reusable utilities ------------------------------------------------------ */
+
+@utility container-page {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Long-form copy rendered from CMS markdown fields. */
+.prose-fiji > * + * {
+  margin-top: 1rem;
+}
+.prose-fiji h2 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+}
+.prose-fiji h3 {
+  font-size: 1.2rem;
+  margin-top: 1.5rem;
+}
+.prose-fiji ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.prose-fiji li + li {
+  margin-top: 0.35rem;
+}
+.prose-fiji a {
+  color: var(--color-salmon-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------------------------------------------------- rotator dot progress */
+/*
+ * Fills the active dot over the rotation interval, so the change is something
+ * the reader can see coming rather than something that happens to them.
+ *
+ * scaleX rather than width: transform is composited, so this cannot cause
+ * layout work on a phone once per frame for the life of the page.
+ *
+ * Duration and play state are set inline by GivingRotator — the interval lives
+ * in one place there, and pausing on hover is `animation-play-state: paused`,
+ * which freezes the fill mid-way instead of snapping it back.
+ */
+@keyframes dot-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ------------------------------------------------------- scroll reveal ---- */
+/*
+ * Sections ease in as they come into view. Applied by <Reveal>, which every
+ * <Section> renders through, so this covers the whole site from one place.
+ *
+ * THE CONTENT IS NEVER HIDDEN WITHOUT A WAY BACK. Three separate guards:
+ *   1. prefers-reduced-motion shows everything, immediately, with no transition.
+ *   2. <noscript> in the root layout does the same when JavaScript is off.
+ *   3. The observer reveals and then stops observing, so an element cannot get
+ *      stuck invisible if it re-enters the viewport during a fast scroll.
+ * A visitor who never runs our JavaScript must still read every word.
+ */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

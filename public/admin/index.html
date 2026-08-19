@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Content Admin — Texas A&amp;M Phi Gamma Delta</title>
+  </head>
+  <body>
+    <!--
+      Decap CMS is loaded from a CDN so it is not an npm dependency of the site.
+      The admin screen is completely separate from the public site: if this file
+      broke tomorrow, tamufiji.info would keep working exactly as it does now.
+
+      ── THE VERSION IS PINNED EXACTLY, ON PURPOSE ────────────────────────────
+      This used to read `decap-cms@^3.8.4`, which lets unpkg serve whatever the
+      newest matching release is. Everywhere else in this project a `^` range is
+      the right call, because `npm install` picking up patches is how the site
+      stays secure while nobody is looking after it.
+
+      This one is different, and the difference is what the page holds. After an
+      officer signs in, this screen carries a GitHub token with write access to
+      the chapter repo. A floating version means whatever code unpkg serves that
+      day runs next to that token, with no review and no lockfile. Pinning trades
+      automatic patches for knowing exactly what runs.
+
+      ── UPGRADING (once a semester, with `npm audit`) ────────────────────────
+      1. Check the latest release: https://github.com/decaporg/decap-cms/releases
+      2. Regenerate the integrity hash for the new version:
+           curl -s https://unpkg.com/decap-cms@VERSION/dist/decap-cms.js \
+             | openssl dgst -sha384 -binary | openssl base64 -A
+      3. Update BOTH the version in the URL and the integrity value below.
+         A mismatched hash makes the browser refuse the file — the admin will
+         not load, which is the correct failure. Do not delete the attribute to
+         "fix" it.
+
+      TODO (launch): the integrity attribute is not set yet. Run the command in
+      step 2 for version 3.8.4 and paste the result in. Until then the pin is
+      doing the heavy lifting; the hash is belt and braces on top of it.
+    -->
+    <script src="https://unpkg.com/decap-cms@3.8.4/dist/decap-cms.js" crossorigin="anonymous"></script>
+  </body>
+</html>

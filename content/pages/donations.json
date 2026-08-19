@@ -1,0 +1,28 @@
+{
+  "title": "Donations & Philanthropy",
+  "intro": "Dues build the foundation, tailgate sponsors bring the spirit, and donations let the chapter take on something new.",
+  "tiers": [
+    {
+      "amount": "$250 or more",
+      "description": "Your family or company name on the back of the Tailgate T-Shirts."
+    },
+    {
+      "amount": "$500 or more",
+      "description": "Your name on the shirts, and a place on the Donor Wall displayed at every tailgate."
+    },
+    {
+      "amount": "$1,000 or more",
+      "description": "Your name on the shirts, on the Donor Wall, and listed as you choose on a private display panel at each tailgate."
+    }
+  ],
+  "campaign": {
+    "label": "TODO: 2026–27 Annual Fund",
+    "goalAmount": 40000,
+    "raisedAmount": 18400,
+    "asOf": "2026-08-01",
+    "donorCount": 96,
+    "note": "TODO: One line on what gifts fund this year.",
+    "isPlaceholder": true
+  },
+  "body": "## Philanthropy\n\nWe at FIJI do not believe that the world takes men's mental health seriously enough. The chapter gives to the American Foundation for Suicide Prevention for that reason alone. We pool donations and philanthropic works into a single amount sent in the chapter's name.\n\nThe philanthropy car wash is planned and run by the latest new member class each year. It is the first thing they build for the chapter, instilling the value of Service into FIJI members from the very start. Everything it raises supports AFSP.\n\nA gift does not have to go to AFSP. It can go directly to one of the memorial funds the chapter carries, each described under Philanthropy & Scholarships. The chapter appreciates any and all donations to our philanthropic connections, and we pride ourselves on the amount we get to send each year. Give to the one that means something to you."
+}

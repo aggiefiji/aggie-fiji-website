@@ -1,0 +1,16 @@
+{
+  "title": "How to Give",
+  "order": 1,
+  "summary": "",
+  "body": "",
+  "payment": {
+    "venmoHandle": "@AlphaMuFiji",
+    "venmoQr": "/donations/venmo-qr.jpg",
+    "zelleName": "ALPHA MU CHAPTER PHI GAMMA DELTA",
+    "zelleQr": "/donations/zelle-qr.jpg",
+    "checkPayableTo": "Phi Gamma Delta — Texas A&M",
+    "checkAddress": "2130 Harvey Mitchell Pkwy S\nBox 10863\nCollege Station, TX 77840-9998",
+    "taxNote": "Phi Gamma Delta at Texas A&M is a private fraternal organization. Donations are not tax-deductible. Questions? Contact the chapter treasurer."
+  },
+  "donationFormUrl": "https://docs.google.com/forms/d/e/1FAIpQLSc4B4PcQ6hCVFDaQqmeaD0L14NyiJNtUq_h8bckc-kr4OvvTA/viewform"
+}

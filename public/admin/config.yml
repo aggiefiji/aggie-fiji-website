@@ -1,0 +1,271 @@
+# =============================================================================
+# DECAP CMS — the admin screen officers use to update the site
+# =============================================================================
+# Visit http://localhost:3000/admin while `npm run dev` is running.
+#
+# LOCAL EDITING (no login, no internet, nothing published):
+#   1. In a second terminal, run:  npx decap-server
+#   2. Open /admin — it will edit the files in /content directly.
+#
+# `local_backend` only applies when the admin is opened from localhost, so it
+# stays switched on. On tamufiji.info the GitHub backend below is what runs.
+#
+# LOGIN — GitHub OAuth, handled by this deployment.
+#   Netlify Identity and Git Gateway are deprecated AND Netlify-only, and this
+#   site is on Vercel, so the OAuth handler lives in the project instead:
+#   src/app/api/auth and src/app/api/callback. No third-party account, nothing
+#   for a rotating officer to inherit but repo access.
+#
+# LAUNCH CHECKLIST (see the README for the long version):
+#   1. Set `repo:` below to the chapter's GitHub repo (OWNER/REPO).
+#   2. Set `base_url:` to the live origin.
+#   3. Create a GitHub OAuth app with callback https://tamufiji.info/api/callback
+#      and put its ID/secret in the Vercel environment as GITHUB_OAUTH_ID and
+#      GITHUB_OAUTH_SECRET.
+#   4. Give the officers who edit the site write access to the repo. That is
+#      the whole permission model — remove them at handover and they are out.
+# =============================================================================
+
+local_backend: true
+
+backend:
+  name: github
+  # TODO (launch): the chapter's repo, as OWNER/REPO.
+  repo: CHANGE-ME/aggie-fiji-website
+  branch: main
+  # Where the OAuth routes live. Same origin as the site.
+  # TODO (launch): must match the deployed domain exactly.
+  base_url: https://tamufiji.info
+  auth_endpoint: api/auth
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+publish_mode: simple
+site_url: https://tamufiji.info
+logo_url: /brand/fiji-crest-512.png
+
+collections:
+  # ---------------------------------------------------------------------------
+  # NO EVENTS COLLECTION, DELIBERATELY.
+  #
+  # Events come from the chapter Google Calendar and nowhere else. A collection
+  # here used to write content/events/*.json as a fallback; both it and those
+  # files were deleted in August 2026, because two sources of events drift and
+  # the one that drifts is always the one nobody is watching.
+  #
+  # To add an event, put it on the calendar — see CALENDAR-SETUP.md. Do not add
+  # a collection back here: it would create files the site never reads.
+  # ---------------------------------------------------------------------------
+  - name: "donations"
+    label: "Donation pages"
+    label_singular: "Donation page"
+    description: >-
+      Fundraising Campaign, Tailgate, Philanthropy & Scholarships, How to Give,
+      and the Donor Wall. Edit the titles and copy here. Dollar figures and goals are NOT here — those
+      live in the chapter Google Sheet so the treasurer can change them
+      without touching the website. Adding a new entry creates a simple extra
+      page plus a nav dropdown item.
+    folder: "content/donations"
+    create: true
+    extension: "json"
+    format: "json"
+    summary: "{{order}}. {{title}}"
+    fields:
+      - { name: "title", label: "Fund or page name", widget: "string" }
+      - { name: "order", label: "Display order", widget: "number", default: 10, value_type: "int", hint: "1 shows first." }
+      - { name: "summary", label: "One-line summary", widget: "text", required: false }
+      - { name: "body", label: "Full description", widget: "markdown", required: false }
+      - { name: "externalUrl", label: "Giving link for this fund", widget: "string", required: false, hint: "Leave blank. Online giving is switched off site-wide until the chapter turns it on deliberately." }
+      - { name: "donationFormUrl", label: "Donation information form (only used by the How to Give page)", widget: "string", required: false, hint: "Public /viewform link to the Google Form donors fill in. Leave blank to hide that step." }
+      - name: "donors"
+        label: "Donor Wall names (only used by the Donor Wall page)"
+        widget: "list"
+        required: false
+        collapsed: true
+        summary: "{{name}}"
+        hint: "Names only — never amounts. Leave Group blank to show one flat list."
+        fields:
+          - { name: "name", label: "Family or individual", widget: "string" }
+          - { name: "group", label: "Group", widget: "string", required: false, hint: "e.g. Tailgate Sponsors. Leave blank until the chapter decides how to separate donor types." }
+      - name: "payment"
+        label: "Payment details (only used by the How to Give page)"
+        widget: "object"
+        required: false
+        collapsed: true
+        fields:
+          - { name: "venmoHandle", label: "Venmo handle", widget: "string", required: false }
+          - { name: "venmoQr", label: "Venmo QR image", widget: "image", required: false }
+          - { name: "zelleName", label: "Zelle account name", widget: "string", required: false }
+          - { name: "zelleEmail", label: "Zelle email address", widget: "string", required: false, hint: "Shown as a fallback for anyone who cannot scan the QR. Update this when the treasurer changes." }
+          - { name: "zelleQr", label: "Zelle QR image", widget: "image", required: false }
+          - { name: "checkPayableTo", label: "Checks payable to", widget: "string", required: false }
+          - { name: "checkAddress", label: "Mailing address", widget: "text", required: false }
+          - { name: "taxNote", label: "Tax / disclaimer note", widget: "text", required: false }
+
+  # ---------------------------------------------------------------------------
+  - name: "officers"
+    label: "Leadership"
+    label_singular: "Officer"
+    description: "Update this every time the chapter elects new officers."
+    folder: "content/officers"
+    create: true
+    extension: "json"
+    format: "json"
+    identifier_field: "name"
+    slug: "{{order}}-{{slug}}"
+    summary: "{{order}}. {{position}} — {{name}}"
+    fields:
+      - { name: "name", label: "Full name", widget: "string" }
+      - { name: "position", label: "Position", widget: "string" }
+      - { name: "order", label: "Display order", widget: "number", default: 10, value_type: "int", hint: "1 shows first. President is usually 1." }
+      # Photo and name are all the site shows. Major, hometown, grad year, email
+      # and bio fields were removed when the per-officer pages went away —
+      # leaving them would invite officers to write copy that renders nowhere.
+      - { name: "photo", label: "Photo", widget: "image", required: false, hint: "Square headshot works best. Roughly 800x800, under 300KB." }
+      - { name: "featured", label: "Show on the homepage", widget: "boolean", default: false, required: false, hint: "The homepage shows a short leadership row. Tick this for the few positions alumni and parents are most likely to be looking for — the full list always appears on Our Chapter. Names only there, so a photo is not needed." }
+
+  # ---------------------------------------------------------------------------
+  - name: "newsletters"
+    label: "Newsletters"
+    label_singular: "Newsletter"
+    folder: "content/newsletters"
+    create: true
+    extension: "json"
+    format: "json"
+    summary: "{{date}} — {{title}}"
+    fields:
+      - { name: "title", label: "Title", widget: "string" }
+      - { name: "date", label: "Date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: false }
+      # No summary field: the archive is a scannable list of date + title +
+      # link, so a summary would be written and never shown.
+      - { name: "file", label: "PDF file", widget: "file", required: false }
+
+  # ---------------------------------------------------------------------------
+  - name: "gallery"
+    label: "Gallery"
+    label_singular: "Photo"
+    description: "Candid chapter photos. Real photos of real brothers beat stock photography every time."
+    folder: "content/gallery"
+    create: true
+    extension: "json"
+    format: "json"
+    identifier_field: "caption"
+    summary: "{{caption}}"
+    fields:
+      - { name: "caption", label: "Caption", widget: "string" }
+      - { name: "image", label: "Photo", widget: "image" }
+      - { name: "category", label: "Category", widget: "string", required: false }
+      - { name: "order", label: "Display order", widget: "number", required: false, value_type: "int" }
+
+  # ---------------------------------------------------------------------------
+  - name: "pages"
+    label: "Page content"
+    files:
+      - name: "site"
+        label: "Chapter info & contact details"
+        file: "content/site.json"
+        fields:
+          - { name: "chapterName", label: "Fraternity name", widget: "string" }
+          - { name: "chapterShortName", label: "Short name", widget: "string" }
+          - { name: "chapterNickname", label: "Chapter nickname", widget: "string", required: false, hint: "What the chapter calls itself, e.g. \"Aggie FIJI\". Leads the headline on the homepage." }
+          - { name: "chapterDesignation", label: "Chapter designation", widget: "string", required: false, hint: "Greek-letter name, e.g. \"Alpha Mu Chapter\"." }
+          - { name: "university", label: "University", widget: "string" }
+          - { name: "foundedChapter", label: "Chapter founded", widget: "string", required: false }
+          - { name: "foundedNational", label: "Fraternity founded", widget: "string", required: false }
+          - { name: "tagline", label: "Tagline", widget: "string", required: false }
+          - { name: "alumniUpdateFormUrl", label: "Alumni contact-update form", widget: "string", required: false, hint: "Public link to the Google Form where alumni update their details. Use the /viewform link, NOT the /edit one. Leave blank to hide the button." }
+          - name: "social"
+            label: "Social accounts"
+            widget: "object"
+            required: false
+            collapsed: true
+            # Full URLs, not @handles — these render as links in the footer.
+            # A blank field shows nothing at all, so an account the chapter
+            # does not have simply never appears.
+            fields:
+              - { name: "instagram", label: "Instagram", widget: "string", required: false, hint: "Full URL, e.g. https://instagram.com/tamufiji — leave blank to hide." }
+              - { name: "facebook", label: "Facebook", widget: "string", required: false, hint: "Full URL. Leave blank to hide." }
+              - { name: "x", label: "X", widget: "string", required: false, hint: "Full URL. Leave blank to hide." }
+              - { name: "linkedin", label: "LinkedIn", widget: "string", required: false, hint: "Full URL. Leave blank to hide." }
+              - { name: "youtube", label: "YouTube", widget: "string", required: false, hint: "Full URL. Leave blank to hide." }
+          - name: "contact"
+            label: "Contact details"
+            widget: "object"
+            fields:
+              - { name: "email", label: "Chapter email", widget: "string", hint: "One inbox, monitored by the President and Treasurer." }
+              - { name: "phone", label: "Phone", widget: "string", required: false }
+              - { name: "mailingAddress", label: "Mailing address (P.O. box)", widget: "text", required: false, hint: "Where post and cheques go." }
+              - { name: "lodgeAddress", label: "Lodge address", widget: "text", required: false, hint: "The physical Lodge. A place to visit, never an address to post to." }
+              - { name: "isPlaceholder", label: "Still using placeholder info?", widget: "boolean", default: true, hint: "Set this to NO once the real contact details are in. While it is YES, a warning shows on the site in development." }
+
+      - name: "home"
+        label: "Home page"
+        file: "content/pages/home.json"
+        fields:
+          - { name: "title", label: "Page title", widget: "string" }
+          - { name: "heroHeadline", label: "Hero headline", widget: "string" }
+          - { name: "heroSubhead", label: "Hero subheadline", widget: "text" }
+          # The intro heading and chapter-intro body were removed in August 2026
+          # when that homepage section became the leadership row. Half of the
+          # intro was still an unwritten TODO and had been for months. Officers
+          # are edited under Leadership; the homepage row is the "Show on the
+          # homepage" tick there.
+
+      - name: "about"
+        label: "Our Chapter page"
+        file: "content/pages/about.json"
+        fields:
+          - { name: "title", label: "Page title", widget: "string" }
+          - { name: "intro", label: "Intro", widget: "text" }
+          # Title and intro only. The values, timeline, history and crest
+          # sections were all removed from this page, so a body field would be
+          # copy that renders nowhere.
+
+      - name: "donations"
+        label: "Donations & Philanthropy page"
+        file: "content/pages/donations.json"
+        fields:
+          - { name: "title", label: "Page title", widget: "string" }
+          - { name: "intro", label: "Intro", widget: "text" }
+          - name: "tiers"
+            label: "Tailgate sponsorship tiers"
+            widget: "list"
+            required: false
+            collapsed: true
+            summary: "{{amount}}"
+            # Moved here from the Tailgate donation page when that page was
+            # folded into Giving. Each tier renders as a box with its own
+            # Give button in the Tailgate Sponsorships section.
+            hint: "Each tier becomes a box with a Give button beside it, in the order listed here."
+            fields:
+              - { name: "amount", label: "Amount", widget: "string", hint: "As you want it shown, e.g. \"$500 or more\"." }
+              - { name: "description", label: "What it earns", widget: "text" }
+          - name: "campaign"
+            label: "Giving goal (shows as the chart on the homepage)"
+            widget: "object"
+            fields:
+              - { name: "label", label: "Campaign name", widget: "string", hint: "e.g. 2026–27 Annual Fund" }
+              - { name: "goalAmount", label: "Goal ($)", widget: "number", value_type: "int" }
+              - { name: "raisedAmount", label: "Raised so far ($)", widget: "number", value_type: "int" }
+              - { name: "asOf", label: "Figures current as of", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: false, required: false }
+              - { name: "donorCount", label: "Number of donors", widget: "number", value_type: "int", required: false }
+              - { name: "note", label: "One-line note", widget: "text", required: false }
+              - { name: "isPlaceholder", label: "Still using sample numbers?", widget: "boolean", default: true, hint: "While YES, the giving chart is hidden on the live site and only visible in development. Set to NO once the figures are real." }
+          - { name: "body", label: "Philanthropy body", widget: "markdown" }
+
+      - name: "events"
+        label: "Events page"
+        file: "content/pages/events.json"
+        fields:
+          - { name: "title", label: "Page title", widget: "string" }
+          - { name: "intro", label: "Intro", widget: "text" }
+          - { name: "body", label: "Stay-involved section", widget: "markdown" }
+
+      - name: "contact"
+        label: "Contact page"
+        file: "content/pages/contact.json"
+        fields:
+          - { name: "title", label: "Page title", widget: "string" }
+          - { name: "intro", label: "Intro", widget: "text" }
+          - { name: "body", label: "Body", widget: "markdown", required: false }
