@@ -63,6 +63,15 @@ separate platforms and is deliberately not advertised here.
 - [ ] **Fund goals.** The $75,000 General goal is real. The foundation and
       philanthropy goals are still guesses the chapter thinks are too high.
       Goals live in the sheet's `Settings` tab — a treasurer edit, no deploy.
+- [ ] **Re-point the Zelle email at every handover.** The Give page publishes a
+      Zelle address alongside the QR code so a donor can add the chapter as a
+      recipient by hand. It is currently the treasurer's **personal** address
+      (`slatonstrey@gmail.com`), which breaks the one-role-inbox rule the rest
+      of the site follows — and a stale one here does not fail loudly, it
+      quietly sends gifts to a graduate. Two ways to close it, best first:
+      **register the chapter's Zelle to `fijitamu@gmail.com`** and put that
+      here instead, or make updating `Giving → How to Give → Zelle email
+      address` in the CMS part of the treasurer handover checklist.
 - [ ] **Decide on Miller and Clark.** Both may be retired at year end. Miller has
       no recorded gifts; Clark was driven by a class that has graduated.
 

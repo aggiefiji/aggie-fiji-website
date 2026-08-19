@@ -336,8 +336,15 @@ export default async function GivingPage() {
           <p className="max-w-xl text-ink/80">
             Behind the numbers, see the list of our recognized donors.
           </p>
-          <ButtonLink href="/donations/donors" tone="outline" className="shrink-0">
-            See our list of recognized donors
+          {/* w-full below sm: at 375px the uppercase label is wider than the
+              card's inner width, and shrink-0 made it overflow the page rather
+              than wrap. Full width on a phone, natural width from sm up. */}
+          <ButtonLink
+            href="/donations/donors"
+            tone="outline"
+            className="w-full sm:w-auto sm:shrink-0"
+          >
+            See our recognized donors
           </ButtonLink>
         </div>
       </Section>

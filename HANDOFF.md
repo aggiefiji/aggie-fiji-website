@@ -101,7 +101,44 @@ Original reference:
 
 `.env.local` is for local development only and never deploys.
 
-### 3. Stand up the CMS login
+### 3. ✅ CMS login — DONE, and verified by an actual publish
+
+An officer logged in at `/admin`, edited a gallery caption, and the change
+committed to the repo and deployed. The whole chain works.
+
+**Two things about this were non-obvious and cost time. Read them before
+standing up a replacement app.**
+
+**The OAuth app is owned by the `aggiefiji` ORGANISATION, not a personal
+account.** Do it that way if it is ever re-created. An app owned by a personal
+account works, but the CMS then depends on that account continuing to exist —
+the same handover trap the repo and the Google assets were moved away from. It
+also avoids the next problem entirely, because an org-owned app is not
+"third-party" to its own org.
+
+**If the app IS personal, the org will block it, and the error will not tell you
+how to fix it.** You get:
+
+> `API_ERROR: Although you appear to have the correct authorization
+> credentials, the 'aggiefiji' organization has enabled OAuth App access
+> restrictions...`
+
+The login succeeds; only the *write* fails. The fix is an owner granting the app
+access at **profile picture → Organizations → `aggiefiji` → Settings →
+Third-party Access → OAuth app policy → Review → Grant access**. Note that
+GitHub only queues a pending request when a *member* tries to authorise — an
+*owner's* attempt can be refused without ever appearing in that list, so it may
+look as though there is nothing to approve. **Leave the restriction switched
+on** and approve the single app; it is doing its job.
+
+**A third thing that looked like a missing file but was not.** `/admin` (no
+trailing slash) made Decap resolve `config.yml` against `/`, so it requested
+`/config.yml` and reported `Failed to load config.yml (404)`. `public/admin/index.html`
+now names the path absolutely via `<link rel="cms-config-url">`, which takes the
+trailing slash out of the equation. Do not remove that tag.
+
+<details>
+<summary>Original setup steps, for re-creating the app</summary>
 
 1. GitHub → Settings → Developer settings → **OAuth Apps** → New.
    Authorization callback URL: `https://tamufiji.info/api/callback`
@@ -121,10 +158,22 @@ Original reference:
 Then visit `/admin`, click Login with GitHub, and publish a trivial change to
 confirm the round trip.
 
-### 4. Delete the old Google API key
+Note GitHub renamed the field: what the docs call the *Authorization callback
+URL* now appears as **Redirect URI**. Leave "Allow wildcard matching" and
+"Enable Device Flow" unchecked. "Expire user access tokens" can stay checked —
+officer tokens then last about 8 hours, and Decap simply asks them to log in
+again, which is the right trade for a token with write access.
 
-In Cloud Console. It is in the `fiji-donations` repo's git history permanently
-and remains a working credential until deleted. The new key is already in use.
+</details>
+
+**Because the repo now changes without you**, `git pull` before editing locally
+or you will eventually conflict with an officer's publish.
+
+### 4. ✅ Delete the old Google API key — DONE
+
+Deleted in Cloud Console, August 2026. It was in the `fiji-donations` repo's git
+history permanently and stayed a working credential until then. The new key was
+already in use, so nothing broke.
 
 ### 5. Add the Decap integrity hash
 
@@ -136,10 +185,28 @@ curl -s https://unpkg.com/decap-cms@3.8.4/dist/decap-cms.js \
   | openssl dgst -sha384 -binary | openssl base64 -A
 ```
 
-### 6. Test on a real phone, and run `npm run preview`
+### 6. Test on a real phone — first pass done, keep doing it
 
 Mobile was the old site's other failure. Production hides all dev-only markers,
-so `preview` looks different from `dev`.
+so `npm run preview` looks different from `npm run dev`.
+
+**The first phone pass found three things, all fixed August 2026:**
+
+- **Two pages scrolled sideways.** `shrink-0` on a button — and on a pair of
+  buttons — held them at their natural width inside a flex row that had less
+  than that. Nothing clipped or wrapped; the *page* got wider than the phone,
+  which reads as "the layout is off-centre" rather than as an overflow. Both now
+  go full width below `sm` and only refuse to shrink from `sm` up.
+  **`shrink-0` on anything containing an uppercase button label is the pattern
+  to check first** if this recurs — a desktop browser never shows it, because
+  there is always room.
+- **Zelle had no address to type.** The QR code covers scanning from a banking
+  app, but a donor adding the chapter as a recipient by hand had nothing to
+  enter. `payment.zelleEmail` now renders beside the account name. See the entry
+  in `CONTENT-TODO.md` — it is currently a personal address and needs re-pointing
+  at every handover.
+- **A button label was longer than the card holding it** on `/donations`,
+  shortened to "See our recognized donors".
 
 ### 7. Confirm the chapter email spelling
 

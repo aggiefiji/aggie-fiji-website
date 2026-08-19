@@ -195,11 +195,15 @@ export default async function GivePage({
             title="See what each fund supports"
             intro="Every fund tracks its own goal and progress."
           />
-          <div className="flex shrink-0 flex-wrap gap-3">
-            <ButtonLink href="/donations" tone="outline">
+          {/* shrink-0 here held this pair at their combined natural width —
+              wider than a phone — so the whole page scrolled sideways and read
+              as off-centre. They stack full width below sm and only refuse to
+              shrink from sm up, where there is room for them. */}
+          <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:shrink-0">
+            <ButtonLink href="/donations" tone="outline" className="w-full sm:w-auto">
               All giving options
             </ButtonLink>
-            <ButtonLink href="/contact" tone="outline">
+            <ButtonLink href="/contact" tone="outline" className="w-full sm:w-auto">
               Ask the treasurer
             </ButtonLink>
           </div>
