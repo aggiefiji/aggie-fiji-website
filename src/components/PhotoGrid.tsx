@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { GalleryItem } from "@/lib/content";
+import { galleryAlt, type GalleryItem } from "@/lib/content";
 import { isTodo } from "@/components/ui";
 
 /**
@@ -38,7 +38,9 @@ export function PhotoGrid({ items }: { items: GalleryItem[] }) {
           >
             <Image
               src={photo.image!}
-              alt={caption}
+              // Never the empty caption — see galleryAlt(). An empty alt would
+              // mark a photo of the chapter as decorative.
+              alt={galleryAlt(photo)}
               width={photo.width ?? 1200}
               height={photo.height ?? 900}
               sizes="(min-width: 1024px) 33vw, 50vw"

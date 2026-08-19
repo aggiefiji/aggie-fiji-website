@@ -15,12 +15,26 @@ constraints and conventions; this file is the state of play.
 
 ---
 
-## Status
+## Status — DEPLOYED
+
+**Live at https://aggie-fiji-website.vercel.app** (August 2026). DNS has not been
+cut over from Wix yet.
 
 `npm run build`, `npm run lint` and `npm run typecheck` all pass. Twelve routes
-build. Both Google integrations are live on the chapter account
-(`fijitamu@gmail.com`, Cloud project `aggie-fiji-website`, one API key allowed
-for Sheets + Calendar).
+build. Repo: `github.com/aggiefiji/aggie-fiji-website` (public — see constraint 6
+in `CLAUDE.md` before changing that).
+
+**Verified working against the live deployment**, not just locally:
+
+- Google Sheet reads from Vercel's network — real figures, twelve wishlist items.
+- Google Calendar reads — ten real upcoming events.
+- The memo system end to end: `?fund=general&detail=Car+Port` →
+  "Fundraising Campaign - Car Port"; a tier → "Tailgate Sponsorship - $500+";
+  `?fund=sarraf` → "Philanthropy - Sarraf Scholarship". An unrecognised detail
+  falls back to the default instead of echoing, as designed.
+- All five security headers present on the production response.
+- `robots.txt` and `sitemap.xml` emit `tamufiji.info` URLs, so
+  `NEXT_PUBLIC_SITE_URL` is set correctly.
 
 | Page | Route | State |
 |---|---|---|
@@ -37,11 +51,21 @@ for Sheets + Calendar).
 
 ## 🔴 Do these before launch — in this order
 
-### 1. Put the project under version control
+### 1. ✅ Version control — DONE
 
-**There is no git repository.** Not an unpushed one — none. Nothing else in this
-list can happen until there is, because Vercel deploys from a repo and the CMS
-login commits to one.
+`github.com/aggiefiji/aggie-fiji-website`, owned by the chapter organisation,
+public. Pushed August 2026.
+
+**Owned by a chapter GitHub Organisation, not a personal account** — the same
+reasoning that moved the Google assets to `fijitamu@gmail.com` in August 2026.
+A repo on a graduating officer's account is a dependency the chapter loses.
+
+**The repo is PUBLIC, and must stay that way.** Vercel's free Hobby plan only
+deploys commits authored by the Hobby account owner when a repo is private, and
+Decap commits as whichever officer is logged in. Private would mean every
+officer except one hits Publish and watches the site never change, with no error
+anywhere. Nothing secret is committed — verified across all 120 files — and the
+real secrets live in the Vercel environment, not the repo.
 
 ```bash
 git init
@@ -49,7 +73,7 @@ git add -A
 git status          # CONFIRM .env.local IS NOT LISTED before committing
 git commit -m "Chapter website rebuild"
 git branch -M main
-git remote add origin https://github.com/OWNER/REPO.git
+git remote add origin https://github.com/aggiefiji/aggie-fiji-website.git
 git push -u origin main
 ```
 
@@ -58,7 +82,14 @@ git push -u origin main
 anyway** — a committed API key is in the history forever, which is exactly how
 the old key ended up unrevokable.
 
-### 2. Set the environment variables in Vercel
+### 2. ✅ Vercel environment — DONE (one to revisit)
+
+Set and confirmed working. **`NEXT_PUBLIC_SITE_URL` is currently
+`https://tamufiji.info`, which is not yet serving this site** — that is correct
+for the final state but means the sitemap advertises URLs that still resolve to
+Wix. Do not submit the sitemap to Google until DNS is cut over.
+
+Original reference:
 
 | Variable | Value |
 |---|---|
@@ -76,14 +107,16 @@ the old key ended up unrevokable.
    Authorization callback URL: `https://tamufiji.info/api/callback`
 2. Put the client ID and secret in Vercel as `GITHUB_OAUTH_ID` /
    `GITHUB_OAUTH_SECRET`.
-3. In `public/admin/config.yml`, replace `repo: CHANGE-ME/aggie-fiji-website`
-   with the real `OWNER/REPO`, and confirm `base_url` matches the live domain.
+3. `public/admin/config.yml` already points at `aggiefiji/aggie-fiji-website`.
+   **Confirm `base_url` matches the domain you actually deploy on** — it is set
+   to `https://tamufiji.info`, so the login will not work until DNS is cut over,
+   or until it is temporarily changed to the `.vercel.app` URL.
 4. Give the two or three officers who actually edit the site **write access to
    the repo**. That is the entire permission model — removing them at handover
    removes their access.
-5. If the repo is **public**, set `GITHUB_OAUTH_SCOPE=public_repo` in Vercel.
-   The default `repo` scope also covers private repositories, so the token an
-   officer carries can otherwise touch their own private repos.
+5. Set `GITHUB_OAUTH_SCOPE=public_repo` in Vercel. The default `repo` scope
+   also covers private repositories, so without this the token an officer
+   carries could reach their own private repos.
 
 Then visit `/admin`, click Login with GitHub, and publish a trivial change to
 confirm the round trip.

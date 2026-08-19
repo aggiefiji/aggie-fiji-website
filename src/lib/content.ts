@@ -6,7 +6,8 @@
  * this module reads them at build time. There is no database and no external
  * content service to go down, expire, or lose a password to.
  *
- * Adding a new event = adding one file to content/events/. Nothing else.
+ * Events are the exception: they come from the chapter Google Calendar, not
+ * from this folder. See src/lib/events.ts.
  */
 
 import fs from "node:fs";
@@ -353,6 +354,26 @@ export function getNewsletters(): Newsletter[] {
  * A file that cannot be measured still renders — the caller falls back to a
  * fixed aspect box — so a new or exotic format never blanks the page.
  */
+/**
+ * Alt text for a gallery photo.
+ *
+ * A caption is the best alt text, but captions are optional — most chapter
+ * photos are candids that need no explaining, and requiring one produced five
+ * photos with `alt=""`. An empty alt tells a screen reader "this image is
+ * decorative, skip it", which is a lie about a photograph of the chapter, and
+ * it leaves nothing on screen when an image fails to load.
+ *
+ * So an uncaptioned photo describes itself as best it can from what the sheet
+ * knows: its category. Generic, but true, and better than silence.
+ */
+export function galleryAlt(item: Pick<GalleryItem, "caption" | "category">): string {
+  const caption = item.caption?.trim();
+  if (caption && !/^\s*TODO/i.test(caption)) return caption;
+  return item.category?.trim()
+    ? `Chapter photo — ${item.category.trim()}`
+    : "Chapter photo";
+}
+
 export function getGallery(): GalleryItem[] {
   return readCollection<GalleryItem>("gallery")
     .map((item) => {

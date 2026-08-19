@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getGallery, getOfficers, getPage, getSiteSettings } from "@/lib/content";
+import { galleryAlt, getGallery, getOfficers, getPage, getSiteSettings } from "@/lib/content";
 import { getResolvedEvents } from "@/lib/events";
 import { getGivingSummary, getSingleFund, usingPlaceholderFigures } from "@/lib/giving";
 import { foundationFunds } from "@/lib/funds";
@@ -326,7 +326,7 @@ export default async function HomePage() {
                   <li key={photo.slug} className="overflow-hidden rounded-sm">
                     <Image
                       src={photo.image!}
-                      alt={photo.caption}
+                      alt={galleryAlt(photo)}
                       width={600}
                       height={450}
                       className="aspect-4/3 w-full object-cover"

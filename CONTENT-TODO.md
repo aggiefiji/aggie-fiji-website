@@ -35,11 +35,11 @@ separate platforms and is deliberately not advertised here.
 
 ## 🟡 Worth doing before launch
 
-- [ ] **`Memo Name` column in the sheet's Wishlist tab.** This is the short
-      label a donor is told to write on Venmo — "Car Port" rather than "Storage
-      car port for the trailer". Blank rows fall back to the full item name,
-      which works but makes for a long memo. **You are writing what you will
-      later read on a bank statement.** See `SHEET-SETUP.md`.
+- [x] **`Memo Name` column — done August 2026.** Verified live: "Storage Car
+      Port" carries the memo name "Car Port", so a donor pressing Give beside it
+      is told to write `Fundraising Campaign - Car Port`. Keep filling this in
+      for any new wishlist row — a blank one falls back to the full item name,
+      which works but makes for an unusably long memo.
 - [ ] **Gallery captions.** All five photos have an empty caption. The photos
       render fine without them, but an empty caption also means the image has no
       alt text for screen readers or when a photo fails to load. Note the CMS

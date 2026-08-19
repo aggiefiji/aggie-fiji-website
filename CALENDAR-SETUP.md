@@ -124,6 +124,25 @@ Work down this list:
 With `npm run dev` running, the terminal prints a line for each problem, and the
 events page shows a dev-only note saying where events came from.
 
+### ⚠️ "TBA" is NOT the same as "TBD" here
+
+The publish gate looks for **`TBD`** and **`TODO`** only. `TBA` is ordinary text
+and publishes as typed.
+
+That is deliberate, and it is useful — an event titled
+"South Carolina Watch Party (Location TBA)" has a real date and a real name, and
+hiding it would serve nobody. But it does mean the two abbreviations behave in
+opposite ways:
+
+| You type | What happens |
+|---|---|
+| `TBD` or `TODO` in the **title** | The event does not publish at all |
+| `TBD` or `TODO` in the **location** | The event publishes; the venue is left off |
+| `TBA` anywhere | Publishes exactly as typed, visible to everyone |
+
+So use `TBD` when the event is not ready to be announced, and `TBA` when you
+want people to see it and know a detail is still coming.
+
 ### There is no fallback — and that is deliberate
 
 The calendar is the only source of events. There used to be JSON files in

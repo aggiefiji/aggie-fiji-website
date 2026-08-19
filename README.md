@@ -164,6 +164,13 @@ validated against real sheet rows and real tiers before it is ever displayed.
 
 1. Push to GitHub (see `HANDOFF.md` — the repo does not exist yet).
 2. Import the repo in Vercel. Build command `npm run build`, framework Next.js.
+
+> **⚠️ Do not make the repository private.** Vercel's free Hobby plan will then
+> only deploy commits authored by the account owner, and the CMS commits as
+> whichever officer is logged in. Everyone else would hit Publish, see their
+> commit reach GitHub, and watch the live site never update — silently. If the
+> chapter ever needs a private repo, it needs a Vercel Pro plan with it.
+
 3. **Set `NEXT_PUBLIC_SITE_URL` and the Google + GitHub OAuth variables** in the
    Vercel project. Without the first, your sitemap and link previews point at
    localhost.

@@ -10,7 +10,7 @@ import { PageHero } from "@/components/PageHero";
 import { GivingAvenues, type Avenue } from "@/components/GivingAvenues";
 import { WishlistList } from "@/components/WishlistList";
 import { ProgressBar } from "@/components/FundProgress";
-import { ButtonLink, CrestRule, Section, SectionHead, Todo } from "@/components/ui";
+import { ButtonLink, CrestRule, Section, SectionHead, Todo, isTodo } from "@/components/ui";
 
 /*
  * 300 seconds, matching REVALIDATE_SECONDS in src/lib/sheets.ts.
@@ -127,7 +127,10 @@ export default async function GivingPage() {
           seen anything to choose between. */}
       <PageHero
         eyebrow="Give back"
-        title={(page.title as string) || "Giving"}
+        // isTodo(), not `||`. An empty title falls back either way, but a title
+        // reading "TODO: rename this" is truthy and would have shipped. This was
+        // the last of four such leaks in the codebase.
+        title={isTodo(page.title as string) ? "Giving" : (page.title as string)}
         intro={page.intro as string}
       />
 

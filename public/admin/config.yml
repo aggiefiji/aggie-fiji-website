@@ -24,18 +24,32 @@
 #      GITHUB_OAUTH_SECRET.
 #   4. Give the officers who edit the site write access to the repo. That is
 #      the whole permission model — remove them at handover and they are out.
+#
+# ⚠️ THE REPOSITORY MUST STAY PUBLIC. Vercel's free Hobby plan only deploys
+#    commits authored by the Hobby account owner when the repo is PRIVATE, and
+#    Decap commits as whichever officer is logged in. Make the repo private and
+#    every officer except the account owner will hit Publish, see the commit
+#    land in GitHub, and watch the live site never change — with no error
+#    anywhere. Collaboration is free for public repositories. Nothing secret is
+#    committed; the secrets live in the Vercel environment.
 # =============================================================================
 
 local_backend: true
 
 backend:
   name: github
-  # TODO (launch): the chapter's repo, as OWNER/REPO.
-  repo: CHANGE-ME/aggie-fiji-website
+  # The chapter organisation is "aggiefiji" — no dash, because the hyphenated
+  # slug was already taken on GitHub. If the org is ever renamed, THIS LINE is
+  # the one to change.
+  repo: aggiefiji/aggie-fiji-website
   branch: main
-  # Where the OAuth routes live. Same origin as the site.
-  # TODO (launch): must match the deployed domain exactly.
-  base_url: https://tamufiji.info
+  # Where the OAuth routes live. MUST be the origin the site actually answers
+  # on, or the login popup calls a domain that is not serving this deployment.
+  #
+  # TODO (at DNS cutover): change this to https://tamufiji.info, and add the
+  # matching callback URL to the GitHub OAuth app at the same time. Until then
+  # it points at the Vercel address so the login can be tested.
+  base_url: https://aggie-fiji-website.vercel.app
   auth_endpoint: api/auth
 
 media_folder: "public/uploads"
@@ -153,7 +167,11 @@ collections:
     identifier_field: "caption"
     summary: "{{caption}}"
     fields:
-      - { name: "caption", label: "Caption", widget: "string" }
+      # NOT required. Most chapter photos are candids that need no explaining,
+      # and demanding a caption meant an officer could not re-save an existing
+      # photo without inventing one. An uncaptioned photo still gets sensible
+      # alt text — see galleryAlt() in src/lib/content.ts.
+      - { name: "caption", label: "Caption", widget: "string", required: false, hint: "Optional. Add one if the photo needs explaining; leave blank for a candid." }
       - { name: "image", label: "Photo", widget: "image" }
       - { name: "category", label: "Category", widget: "string", required: false }
       - { name: "order", label: "Display order", widget: "number", required: false, value_type: "int" }

@@ -42,7 +42,13 @@ giving. Donations are the chapter's stated priority this year.
    payment processor.** Gifts arrive by Venmo, Zelle, and cheque. The flag stays
    because turning it on should take a deliberate code change and a named person
    on the account, never a stray environment variable.
-6. **The giving sheet is public.** Never add emails, phone numbers, addresses,
+6. **The site repository must stay public.** Not a preference — Vercel's free
+   Hobby plan only deploys commits authored by the Hobby account owner when the
+   repo is private, and the CMS commits as whichever officer is logged in. A
+   private repo silently breaks publishing for every officer but one, which
+   defeats constraint 3. Nothing secret is committed; secrets live in the Vercel
+   environment. Changing this needs a Vercel Pro plan alongside it.
+7. **The giving sheet is public.** Never add emails, phone numbers, addresses,
    or anything tying a person to a figure. Donation tabs are Date and Amount
    only. **One exception:** a `Donor Wall` tab holding *names and an optional
    group, nothing else* — those names are already published on the physical wall.

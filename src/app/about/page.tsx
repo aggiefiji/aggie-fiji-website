@@ -42,7 +42,9 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="Alpha Mu"
-        title={(page.title as string) || "Our Chapter"}
+        // isTodo(), not `||` — see the note on the Giving page. A title of
+        // "TODO: …" is truthy and would otherwise reach visitors.
+        title={isTodo(page.title as string) ? "Our Chapter" : (page.title as string)}
         intro={page.intro as string}
       />
 
