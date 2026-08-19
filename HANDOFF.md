@@ -236,6 +236,12 @@ reading `aggiefiji.com`.
 opposite of what is wanted. Pointing means Wix answers DNS while Vercel serves
 the pages.
 
+**Pointing is also the ONLY option here.** Wix does not allow the nameservers of
+a Wix-registered domain to be changed, so the usual "just switch to Vercel's
+nameservers" advice does not apply. That is a happy accident: editing individual
+records leaves the MX records alone, so chapter email — if it is ever in use —
+survives untouched.
+
 **Order matters.** Steps 3 and 4 break the CMS login if they land before DNS
 resolves, so do them after step 2 confirms.
 
@@ -243,12 +249,23 @@ resolves, so do them after step 2 confirms.
    Vercel will offer to add `www.aggiefiji.com` too — take it, and set the apex
    as primary so `www` redirects to it rather than the reverse. Vercel shows the
    exact records to create; **read them off the dashboard rather than trusting
-   any value written down here**, because they are per-project and they change.
-   Expect an `A` record for the apex and a `CNAME` for `www`.
-2. **Wix → Domains → aggiefiji.com → DNS records.** Enter what Vercel gave you.
-   Wix will not let you edit the apex `A` record while the domain is connected
-   to a Wix site, so disconnect it from the Wix site first. Give it up to a few
-   hours, and confirm `https://aggiefiji.com` serves this site before going on.
+   any value written down here**, because they are per-project. Older projects
+   get `76.76.21.21`; newer ones get an anycast address such as `216.198.79.1`,
+   and Vercel verifies against the exact record your card names. Expect an `A`
+   record for the apex and a `CNAME` for `www`.
+2. **Wix → Domains → the ⋯ icon beside `aggiefiji.com` → Manage DNS Records.**
+   Point the root `A` record at Vercel's IP and the `www` `CNAME` at Vercel's
+   target, deleting Wix's own A/CNAME values so they cannot conflict. **Leave the
+   MX records alone.** If Wix refuses to let you edit the root record, disconnect
+   the domain from the Wix site first.
+
+   **Check for a CAA record while you are in there.** A CAA record that does not
+   permit Let's Encrypt silently blocks Vercel from issuing the TLS certificate:
+   DNS resolves, the domain still reads as invalid, and nothing says why. Either
+   delete it or allow `letsencrypt.org`.
+
+   Propagation can take up to 48 hours, though it is usually far quicker.
+   Confirm `https://aggiefiji.com` serves this site before going on.
 3. **Vercel → Settings → Environment Variables.** Change `NEXT_PUBLIC_SITE_URL`
    to `https://aggiefiji.com`, then **redeploy** — it is baked in at build time,
    so saving alone changes nothing.
