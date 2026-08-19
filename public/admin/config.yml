@@ -8,7 +8,7 @@
 #   2. Open /admin — it will edit the files in /content directly.
 #
 # `local_backend` only applies when the admin is opened from localhost, so it
-# stays switched on. On tamufiji.info the GitHub backend below is what runs.
+# stays switched on. On aggiefiji.com the GitHub backend below is what runs.
 #
 # LOGIN — GitHub OAuth, handled by this deployment.
 #   Netlify Identity and Git Gateway are deprecated AND Netlify-only, and this
@@ -19,7 +19,7 @@
 # LAUNCH CHECKLIST (see the README for the long version):
 #   1. Set `repo:` below to the chapter's GitHub repo (OWNER/REPO).
 #   2. Set `base_url:` to the live origin.
-#   3. Create a GitHub OAuth app with callback https://tamufiji.info/api/callback
+#   3. Create a GitHub OAuth app with callback https://aggiefiji.com/api/callback
 #      and put its ID/secret in the Vercel environment as GITHUB_OAUTH_ID and
 #      GITHUB_OAUTH_SECRET.
 #   4. Give the officers who edit the site write access to the repo. That is
@@ -46,7 +46,7 @@ backend:
   # Where the OAuth routes live. MUST be the origin the site actually answers
   # on, or the login popup calls a domain that is not serving this deployment.
   #
-  # TODO (at DNS cutover): change this to https://tamufiji.info, and add the
+  # TODO (at DNS cutover): change this to https://aggiefiji.com, and add the
   # matching callback URL to the GitHub OAuth app at the same time. Until then
   # it points at the Vercel address so the login can be tested.
   base_url: https://aggie-fiji-website.vercel.app
@@ -56,7 +56,7 @@ media_folder: "public/uploads"
 public_folder: "/uploads"
 
 publish_mode: simple
-site_url: https://tamufiji.info
+site_url: https://aggiefiji.com
 logo_url: /brand/fiji-crest-512.png
 
 collections:

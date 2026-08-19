@@ -22,7 +22,7 @@ import { NextResponse, type NextRequest } from "next/server";
  *
  * SETUP (once, at launch — see README):
  *   1. GitHub → Settings → Developer settings → OAuth Apps → New.
- *      Authorization callback URL: https://tamufiji.info/api/callback
+ *      Authorization callback URL: https://aggiefiji.com/api/callback
  *   2. Put the client ID and secret in Vercel's environment variables as
  *      GITHUB_OAUTH_ID and GITHUB_OAUTH_SECRET. Not in .env.local — that file
  *      is gitignored and never deployed.

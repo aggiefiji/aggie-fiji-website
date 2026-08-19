@@ -20,6 +20,12 @@ constraints and conventions; this file is the state of play.
 **Live at https://aggie-fiji-website.vercel.app** (August 2026). DNS has not been
 cut over from Wix yet.
 
+**THE DOMAIN CHANGED IN AUGUST 2026.** It was `tamufiji.info`; the chapter
+retired that and the site goes live on **`aggiefiji.com`**, which is registered
+at Wix and currently serves the old Wix site. Every reference in this repo was
+updated. If you find `tamufiji.info` anywhere, it is stale — the one surviving
+`tamufiji` string is an Instagram handle in a CMS hint, which is unrelated.
+
 `npm run build`, `npm run lint` and `npm run typecheck` all pass. Twelve routes
 build. Repo: `github.com/aggiefiji/aggie-fiji-website` (public — see constraint 6
 in `CLAUDE.md` before changing that).
@@ -33,8 +39,10 @@ in `CLAUDE.md` before changing that).
   `?fund=sarraf` → "Philanthropy - Sarraf Scholarship". An unrecognised detail
   falls back to the default instead of echoing, as designed.
 - All five security headers present on the production response.
-- `robots.txt` and `sitemap.xml` emit `tamufiji.info` URLs, so
-  `NEXT_PUBLIC_SITE_URL` is set correctly.
+- `robots.txt` and `sitemap.xml` emit whatever `NEXT_PUBLIC_SITE_URL` is set to.
+  **That variable still says `tamufiji.info` in Vercel and must be changed to
+  `https://aggiefiji.com`** — see step 7. Until it is, every canonical URL and
+  link preview points at a domain the chapter no longer owns.
 
 | Page | Route | State |
 |---|---|---|
@@ -84,16 +92,18 @@ the old key ended up unrevokable.
 
 ### 2. ✅ Vercel environment — DONE (one to revisit)
 
-Set and confirmed working. **`NEXT_PUBLIC_SITE_URL` is currently
-`https://tamufiji.info`, which is not yet serving this site** — that is correct
-for the final state but means the sitemap advertises URLs that still resolve to
-Wix. Do not submit the sitemap to Google until DNS is cut over.
+Set and confirmed working, **with one variable now wrong.**
+`NEXT_PUBLIC_SITE_URL` was set to `https://tamufiji.info` before the chapter
+retired that domain. It must become `https://aggiefiji.com`, and because it is a
+`NEXT_PUBLIC_` variable it is baked in at build time — changing it requires a
+redeploy, not just a save. Do not submit the sitemap to Google until that is
+done and DNS resolves.
 
 Original reference:
 
 | Variable | Value |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | `https://tamufiji.info` — **not optional.** Left unset, `sitemap.xml`, `robots.txt` and every link preview point at `localhost:3000` |
+| `NEXT_PUBLIC_SITE_URL` | `https://aggiefiji.com` — **not optional.** Left unset, `sitemap.xml`, `robots.txt` and every link preview point at `localhost:3000`. Baked in at build time: changing it needs a redeploy |
 | `GOOGLE_SHEETS_ID`, `GOOGLE_SHEETS_API_KEY` | From `.env.local` |
 | `GOOGLE_CALENDAR_ID` | From `.env.local` |
 | `GITHUB_OAUTH_ID`, `GITHUB_OAUTH_SECRET` | From step 3 |
@@ -141,12 +151,12 @@ trailing slash out of the equation. Do not remove that tag.
 <summary>Original setup steps, for re-creating the app</summary>
 
 1. GitHub → Settings → Developer settings → **OAuth Apps** → New.
-   Authorization callback URL: `https://tamufiji.info/api/callback`
+   Authorization callback URL: `https://aggiefiji.com/api/callback`
 2. Put the client ID and secret in Vercel as `GITHUB_OAUTH_ID` /
    `GITHUB_OAUTH_SECRET`.
 3. `public/admin/config.yml` already points at `aggiefiji/aggie-fiji-website`.
    **Confirm `base_url` matches the domain you actually deploy on** — it is set
-   to `https://tamufiji.info`, so the login will not work until DNS is cut over,
+   to `https://aggiefiji.com`, so the login will not work until DNS is cut over,
    or until it is temporarily changed to the `.vercel.app` URL.
 4. Give the two or three officers who actually edit the site **write access to
    the repo**. That is the entire permission model — removing them at handover
@@ -215,28 +225,50 @@ so `npm run preview` looks different from `npm run dev`.
 - **A button label was longer than the card holding it** on `/donations`,
   shortened to "See our recognized donors".
 
-### 7. Cut DNS over to tamufiji.info — DO THIS LAST
+### 7. Point aggiefiji.com at Vercel — DO THIS LAST
 
-**Three changes that must land together.** Miss one and the symptom is silence,
-not an error.
+The domain is registered at **Wix** and currently serves the old Wix site. The
+goal is that `aggiefiji.com` serves THIS site, with the address bar still
+reading `aggiefiji.com`.
 
-1. Point the domain at Vercel and set `tamufiji.info` as the project's primary
-   domain.
-2. Change `base_url` in `public/admin/config.yml` from the `.vercel.app` address
-   to `https://tamufiji.info`.
-3. Add `https://tamufiji.info/api/callback` as a Redirect URI on the GitHub
-   OAuth app.
+**Point the DNS; do not use a Wix redirect.** A redirect sends visitors to the
+`.vercel.app` address and leaves that showing in the address bar, which is the
+opposite of what is wanted. Pointing means Wix answers DNS while Vercel serves
+the pages.
 
-**2 and 3 are one change in two places.** If they disagree, the login popup
-hangs on "Completing sign-in" forever with nothing in the console, because a
-`postMessage` to the wrong origin is dropped silently — see the long comment in
-`src/app/api/callback/route.ts`. The popup now swaps in an explanation after ten
-seconds rather than spinning, so at least the failure names itself.
+**Order matters.** Steps 3 and 4 break the CMS login if they land before DNS
+resolves, so do them after step 2 confirms.
 
-Afterwards: log in at `/admin` and publish a trivial change to confirm the round
-trip still works, then submit `sitemap.xml` to Google. `NEXT_PUBLIC_SITE_URL` is
-already `https://tamufiji.info`, so the sitemap has been advertising the right
-URLs all along — it is only correct once DNS actually resolves here.
+1. **Vercel → project → Settings → Domains → Add.** Enter `aggiefiji.com`.
+   Vercel will offer to add `www.aggiefiji.com` too — take it, and set the apex
+   as primary so `www` redirects to it rather than the reverse. Vercel shows the
+   exact records to create; **read them off the dashboard rather than trusting
+   any value written down here**, because they are per-project and they change.
+   Expect an `A` record for the apex and a `CNAME` for `www`.
+2. **Wix → Domains → aggiefiji.com → DNS records.** Enter what Vercel gave you.
+   Wix will not let you edit the apex `A` record while the domain is connected
+   to a Wix site, so disconnect it from the Wix site first. Give it up to a few
+   hours, and confirm `https://aggiefiji.com` serves this site before going on.
+3. **Vercel → Settings → Environment Variables.** Change `NEXT_PUBLIC_SITE_URL`
+   to `https://aggiefiji.com`, then **redeploy** — it is baked in at build time,
+   so saving alone changes nothing.
+4. **Two changes that must land together:** set `base_url` in
+   `public/admin/config.yml` to `https://aggiefiji.com`, and add
+   `https://aggiefiji.com/api/callback` as a Redirect URI on the GitHub OAuth
+   app. If they disagree, the login popup hangs on "Completing sign-in" with
+   nothing in the console — a `postMessage` to the wrong origin is dropped
+   silently. The popup now swaps in an explanation after ten seconds; the long
+   version is in `src/app/api/callback/route.ts`.
+5. **Verify:** log in at `/admin` and publish a trivial change. Then check
+   `aggiefiji.com/sitemap.xml` emits `aggiefiji.com` URLs, and submit it to
+   Google.
+
+**Wix analytics stops collecting the moment this cuts over.** Once DNS points at
+Vercel, Wix no longer serves a single request on this domain, so it has nothing
+left to measure. Historical Wix figures stay viewable in the Wix dashboard, but
+they will not grow, and they cannot be imported into Vercel. Vercel Web
+Analytics takes over from the cutover date — **export anything from Wix worth
+keeping before you switch**, because the two data sets will never join up.
 
 ### 8. ✅ Confirm the chapter email spelling — DONE
 

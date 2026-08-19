@@ -1,6 +1,6 @@
 # Phi Gamma Delta — Texas A&M University
 
-Rebuild of the chapter website (replacing the unfinished Wix site at tamufiji.info).
+Rebuild of the chapter website (replacing the unfinished Wix site at aggiefiji.com).
 
 **Audience:** alumni and parents. Recruitment happens on separate platforms and
 is deliberately not advertised here.
@@ -51,7 +51,7 @@ also covers the `Memo Name` column that controls what a donor is told to write.
 
 ### Everything else — the admin screen
 
-1. Go to `tamufiji.info/admin` and click **Login with GitHub**.
+1. Go to `aggiefiji.com/admin` and click **Login with GitHub**.
 2. Pick what you want to change from the left sidebar.
 3. Edit it like a form. Hit **Publish**.
 4. The site rebuilds itself in about a minute.

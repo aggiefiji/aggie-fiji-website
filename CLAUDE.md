@@ -1,7 +1,11 @@
 # CLAUDE.md — project context for a new session
 
 Rebuild of the Texas A&M Phi Gamma Delta (Alpha Mu Chapter) website, replacing
-an unfinished Wix site at tamufiji.info.
+an unfinished Wix site at **aggiefiji.com**.
+
+**The domain changed in August 2026.** Earlier notes say `tamufiji.info`; the
+chapter retired it as an odd address and settled on `aggiefiji.com`, which it
+already owned through Wix. Any `tamufiji.info` you find is stale.
 
 Read this first for the rules, then **`HANDOFF.md`** for where things stand and
 what to do next. After those: `README.md` (how it works), `SHEET-SETUP.md` (the
