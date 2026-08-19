@@ -148,13 +148,16 @@ export default async function GivePage({
                   className="mx-auto mt-4 h-auto w-40 rounded-sm"
                 />
               ) : null}
-              <p className="mt-4 flex-1 text-sm text-ink/75">
+              {/* break-words because the address is the one string here long
+                  enough to push this column wider than a phone. */}
+              <p className="mt-4 flex-1 text-sm break-words text-ink/75">
                 Scan from your banking app to send to{" "}
                 <strong className="text-purple-900">{pay?.zelleName || "the chapter account"}</strong>
                 {pay?.zelleEmail && !isTodo(pay.zelleEmail) ? (
                   <>
-                    , or send directly to{" "}
-                    <strong className="text-purple-900">{pay.zelleEmail}</strong>
+                    {" "}
+                    (registered at the email:{" "}
+                    <strong className="text-purple-900">{pay.zelleEmail}</strong>)
                   </>
                 ) : null}
                 .
