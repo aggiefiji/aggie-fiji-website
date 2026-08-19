@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <title>Content Admin — Texas A&amp;M Phi Gamma Delta</title>
+
+    <!--
+      WHERE THE CONFIG LIVES — an ABSOLUTE path, deliberately.
+
+      Without this tag, Decap fetches "config.yml" relative to the page URL.
+      Visiting /admin (no trailing slash) makes the browser resolve that against
+      "/", so it requests /config.yml and gets a 404 — reported as
+      "Failed to load config.yml (404)", which reads like a missing file rather
+      than a missing slash. Visiting /admin/ works. Officers will type /admin.
+
+      Naming the path outright removes the trailing slash from the equation.
+    -->
+    <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
   </head>
   <body>
     <!--
