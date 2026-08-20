@@ -42,7 +42,9 @@ separate platforms and is deliberately not advertised here.
       which works but makes for an unusably long memo.
 - [ ] **Gallery captions.** All five photos have an empty caption. The photos
       render fine without them, but an empty caption also means the image has no
-      alt text for screen readers or when a photo fails to load.
+      alt text for screen readers or when a photo fails to load — and since
+      photos now expand to full size, the caption is the only thing the overlay
+      can put under the picture. A captioned photo gains the most from this.
 - [ ] **Summer 2026 newsletter PDF.** The issue is listed but has no file, so it
       is hidden from visitors entirely. Drop the PDF in `public/newsletters/`.
 - [ ] **Social handles.** `site.json` → `social`, editable in the CMS under

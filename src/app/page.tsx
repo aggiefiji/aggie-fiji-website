@@ -7,6 +7,7 @@ import { foundationFunds } from "@/lib/funds";
 import { getCumulativeTotals } from "@/lib/sheets";
 import { EventCard, EmptyEvents } from "@/components/EventCard";
 import { GivingRotator, type RotatorPanel } from "@/components/GivingRotator";
+import { LightboxGallery, LightboxTrigger, type LightboxImage } from "@/components/Lightbox";
 import {
   ButtonLink,
   CrestRule,
@@ -102,6 +103,21 @@ export default async function HomePage() {
     },
   ].filter(Boolean) as RotatorPanel[];
   const showPhotos = photos.length > 0 || isDev;
+
+  /*
+   * The strip below crops every photo to 4:3, so the thumbnail is not the
+   * photograph — it is the middle of it. Expanding matters more here than on
+   * /gallery, where each photo already renders at its own proportions. These
+   * carry the MEASURED dimensions from getGallery(), not the 600x450 the
+   * thumbnail is rendered at, so the overlay shows the whole uncropped frame.
+   */
+  const photoImages: LightboxImage[] = photos.map((photo) => ({
+    src: photo.image!,
+    alt: galleryAlt(photo),
+    width: photo.width,
+    height: photo.height,
+    title: isTodo(photo.caption) ? undefined : photo.caption,
+  }));
 
   // These two render directly rather than through <ContentText>, so they need
   // the placeholder check applied by hand. The headline falls back to a real
@@ -320,25 +336,30 @@ export default async function HomePage() {
         <Section>
           <SectionHead eyebrow="Chapter life" title="Recent photos" />
 
-          <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {photos.length > 0
-              ? photos.map((photo) => (
-                  <li key={photo.slug} className="overflow-hidden rounded-sm">
-                    <Image
-                      src={photo.image!}
-                      alt={galleryAlt(photo)}
-                      width={600}
-                      height={450}
-                      className="aspect-4/3 w-full object-cover"
-                    />
-                  </li>
-                ))
-              : [0, 1, 2, 3].map((i) => (
-                  <li key={i} className="overflow-hidden rounded-sm">
-                    <PhotoPlaceholder label="Photo slot" />
-                  </li>
-                ))}
-          </ul>
+          <LightboxGallery images={photoImages}>
+            <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {photos.length > 0
+                ? photos.map((photo, i) => (
+                    <li key={photo.slug} className="overflow-hidden rounded-sm">
+                      <LightboxTrigger index={i} image={photoImages[i]}>
+                        <Image
+                          src={photo.image!}
+                          alt={photoImages[i].alt}
+                          width={600}
+                          height={450}
+                          className="aspect-4/3 w-full object-cover transition-transform duration-200 group-hover:scale-[1.04] motion-reduce:transform-none"
+                        />
+                      </LightboxTrigger>
+                    </li>
+                  ))
+                : [0, 1, 2, 3].map((i) => (
+                    // Dev-only placeholders. Nothing to expand, so no trigger.
+                    <li key={i} className="overflow-hidden rounded-sm">
+                      <PhotoPlaceholder label="Photo slot" />
+                    </li>
+                  ))}
+            </ul>
+          </LightboxGallery>
 
           <div className="mt-10 flex justify-center">
             <ButtonLink href="/gallery" tone="outline">

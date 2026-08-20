@@ -5,6 +5,7 @@ import { getGallery, getOfficers, getPage } from "@/lib/content";
 import { PageHero } from "@/components/PageHero";
 import { ButtonLink, EmptyState, Section, SectionHead, Todo, isTodo } from "@/components/ui";
 import { PhotoGrid } from "@/components/PhotoGrid";
+import { LightboxGallery, LightboxTrigger, type LightboxImage } from "@/components/Lightbox";
 
 export const metadata: Metadata = {
   title: "Our Chapter",
@@ -38,6 +39,22 @@ export default function AboutPage() {
   const officers = getOfficers().filter((o) => isDev || !isTodo(o.name));
   const photos = getGallery().filter((g) => g.image).slice(0, 6);
 
+  /*
+   * Only officers who actually have a headshot go in the lightbox, and each
+   * card looks up its position in THIS array rather than its position in the
+   * grid. Ben Powell has no photo yet; indexing by grid position would make
+   * every officer after him open somebody else's face.
+   */
+  const withPhoto = officers.filter((o) => o.photo);
+  const officerImages: LightboxImage[] = withPhoto.map((o) => ({
+    src: o.photo!,
+    alt: `${isTodo(o.name) ? "Officer" : o.name}, ${o.position}`,
+    width: 800,
+    height: 800,
+    title: isTodo(o.name) ? undefined : o.name,
+    subtitle: o.position,
+  }));
+
   return (
     <>
       <PageHero
@@ -59,32 +76,42 @@ export default function AboutPage() {
           parent actually wants from this list.
         */}
         {officers.length > 0 ? (
-          <ul className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-            {officers.map((officer) => (
-              <li
-                key={officer.slug}
-                className="overflow-hidden rounded-sm bg-white ring-1 ring-purple-900/10"
-              >
-                {officer.photo ? (
-                  <Image
-                    src={officer.photo}
-                    alt={officer.name}
-                    width={400}
-                    height={400}
-                    className="aspect-square w-full bg-purple-900/5 object-cover"
-                  />
-                ) : (
-                  <div className="aspect-square w-full bg-purple-900/8" />
-                )}
-                <div className="p-4">
-                  <p className="eyebrow text-salmon-600">{officer.position}</p>
-                  <p className="mt-1 font-serif text-lg leading-tight text-purple-900">
-                    {isTodo(officer.name) ? "Name pending" : officer.name}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <LightboxGallery images={officerImages}>
+            <ul className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+              {officers.map((officer) => {
+                const photoIndex = withPhoto.indexOf(officer);
+
+                return (
+                  <li
+                    key={officer.slug}
+                    className="overflow-hidden rounded-sm bg-white ring-1 ring-purple-900/10"
+                  >
+                    {officer.photo ? (
+                      <LightboxTrigger index={photoIndex} image={officerImages[photoIndex]}>
+                        <Image
+                          src={officer.photo}
+                          alt={officerImages[photoIndex].alt}
+                          width={400}
+                          height={400}
+                          className="aspect-square w-full bg-purple-900/5 object-cover transition-transform duration-200 group-hover:scale-[1.04] motion-reduce:transform-none"
+                        />
+                      </LightboxTrigger>
+                    ) : (
+                      // No photo, no link. A card that opens an empty overlay is
+                      // worse than one that plainly has nothing to show.
+                      <div className="aspect-square w-full bg-purple-900/8" />
+                    )}
+                    <div className="p-4">
+                      <p className="eyebrow text-salmon-600">{officer.position}</p>
+                      <p className="mt-1 font-serif text-lg leading-tight text-purple-900">
+                        {isTodo(officer.name) ? "Name pending" : officer.name}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </LightboxGallery>
         ) : (
           <div className="mt-10">
             <EmptyState

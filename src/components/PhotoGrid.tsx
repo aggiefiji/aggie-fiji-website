@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { galleryAlt, type GalleryItem } from "@/lib/content";
 import { isTodo } from "@/components/ui";
+import { LightboxGallery, LightboxTrigger, type LightboxImage } from "@/components/Lightbox";
 
 /**
  * Chapter photos, at whatever shape they arrived in.
@@ -19,39 +20,59 @@ import { isTodo } from "@/components/ui";
  *
  * A photo whose dimensions could not be read falls back to a 4:3 box rather
  * than breaking the layout.
+ *
+ * THIS STAYS A SERVER COMPONENT. Only the click handling is client-side, and it
+ * arrives as `LightboxGallery` wrapping already-rendered children — so
+ * `content.ts` (which imports node:fs) never crosses the boundary.
  */
 export function PhotoGrid({ items }: { items: GalleryItem[] }) {
   const photos = items.filter((i) => i.image);
   if (photos.length === 0) return null;
 
-  return (
-    <div className="columns-2 gap-4 lg:columns-3 [&>*]:mb-4">
-      {photos.map((photo) => {
-        const caption = isTodo(photo.caption) ? "" : photo.caption;
-        const measured = Boolean(photo.width && photo.height);
+  // Built once and shared: the grid's triggers and the overlay must index into
+  // the same array, or arrowing through the photos jumps to the wrong one.
+  const images: LightboxImage[] = photos.map((photo) => ({
+    src: photo.image!,
+    alt: galleryAlt(photo),
+    width: photo.width,
+    height: photo.height,
+    title: isTodo(photo.caption) ? undefined : photo.caption,
+  }));
 
-        return (
-          <figure
-            key={photo.slug}
-            // break-inside stops a photo being split across two columns.
-            className="break-inside-avoid overflow-hidden rounded-sm bg-white ring-1 ring-purple-900/10"
-          >
-            <Image
-              src={photo.image!}
-              // Never the empty caption — see galleryAlt(). An empty alt would
-              // mark a photo of the chapter as decorative.
-              alt={galleryAlt(photo)}
-              width={photo.width ?? 1200}
-              height={photo.height ?? 900}
-              sizes="(min-width: 1024px) 33vw, 50vw"
-              className={`w-full bg-purple-900/5 ${measured ? "h-auto" : "aspect-4/3 object-cover"}`}
-            />
-            {caption ? (
-              <figcaption className="p-4 text-sm text-ink/80">{caption}</figcaption>
-            ) : null}
-          </figure>
-        );
-      })}
-    </div>
+  return (
+    <LightboxGallery images={images}>
+      <div className="columns-2 gap-4 lg:columns-3 [&>*]:mb-4">
+        {photos.map((photo, i) => {
+          const caption = images[i].title;
+          const measured = Boolean(photo.width && photo.height);
+
+          return (
+            <figure
+              key={photo.slug}
+              // break-inside stops a photo being split across two columns.
+              className="break-inside-avoid overflow-hidden rounded-sm bg-white ring-1 ring-purple-900/10"
+            >
+              <LightboxTrigger index={i} image={images[i]}>
+                <Image
+                  src={photo.image!}
+                  // Never the empty caption — see galleryAlt(). An empty alt would
+                  // mark a photo of the chapter as decorative.
+                  alt={images[i].alt}
+                  width={photo.width ?? 1200}
+                  height={photo.height ?? 900}
+                  sizes="(min-width: 1024px) 33vw, 50vw"
+                  className={`w-full bg-purple-900/5 transition-transform duration-200 group-hover:scale-[1.03] motion-reduce:transform-none ${
+                    measured ? "h-auto" : "aspect-4/3 object-cover"
+                  }`}
+                />
+              </LightboxTrigger>
+              {caption ? (
+                <figcaption className="p-4 text-sm text-ink/80">{caption}</figcaption>
+              ) : null}
+            </figure>
+          );
+        })}
+      </div>
+    </LightboxGallery>
   );
 }

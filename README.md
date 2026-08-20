@@ -1,6 +1,9 @@
 # Phi Gamma Delta — Texas A&M University
 
-Rebuild of the chapter website (replacing the unfinished Wix site at aggiefiji.com).
+Chapter website for Texas A&M Phi Gamma Delta (Alpha Mu), replacing the
+unfinished Wix site that used to serve this domain.
+
+**Live at https://aggiefiji.com.**
 
 **Audience:** alumni and parents. Recruitment happens on separate platforms and
 is deliberately not advertised here.

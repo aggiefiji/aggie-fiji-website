@@ -15,6 +15,10 @@ giving data), `CALENDAR-SETUP.md` (the events calendar), and `CONTENT-TODO.md`
 **Last full pass: August 2026.** Everything below describes what is actually in
 the repo, not what was once planned.
 
+**The site is LIVE at https://aggiefiji.com.** Changes now reach real alumni and
+parents, and officers publish through `/admin` without you. `git pull` before
+touching anything local.
+
 ---
 
 ## Audience and purpose
@@ -164,6 +168,19 @@ twice and ships a generic page nobody sees.
   worse than no field, because it wastes someone's afternoon. The Events
   collection was removed from the CMS for exactly this reason when the JSON
   events went.
+- **Photos expand, and the trigger is a link.** Officer headshots, gallery
+  photos, and the homepage strip open in an overlay
+  (`src/components/Lightbox.tsx`). Three grids, one implementation — a fourth
+  photo grid should use it too rather than growing its own. The thing you click
+  is an `<a href>` pointing at the image file, not a button — so with JavaScript
+  off a click still opens the photo, and cmd-click still opens a new tab. That is
+  the same rule as the `<noscript>` reveal below: **a visitor who never runs our
+  JavaScript must still get the content, not a dead control.** The overlay keeps
+  Tab inside itself and hands focus back to the photo it was opened from.
+- **A lightbox index is not a grid index.** The officer grid shows officers with
+  no headshot; the overlay only holds ones with a photo. Each card looks up its
+  position in the photo array, never its position in the grid — index by grid
+  position and every officer after the photo-less one opens somebody else's face.
 - **Motion has an off switch.** The scroll reveals, the giving rotator, and the
   skeleton pulses all respect `prefers-reduced-motion`. The reveal starts at
   `opacity: 0`, so a `<noscript>` block in the root layout un-hides everything

@@ -15,16 +15,21 @@ constraints and conventions; this file is the state of play.
 
 ---
 
-## Status — DEPLOYED
+## Status — LIVE
 
-**Live at https://aggie-fiji-website.vercel.app** (August 2026). DNS has not been
-cut over from Wix yet.
+**Live at https://aggiefiji.com** (August 2026). DNS is cut over, the old Wix
+site is retired, and the Vercel deployment is what visitors get. The
+`.vercel.app` address still works and still deploys; the custom domain is the
+one to give people.
 
 **THE DOMAIN CHANGED IN AUGUST 2026.** It was `tamufiji.info`; the chapter
-retired that and the site goes live on **`aggiefiji.com`**, which is registered
-at Wix and currently serves the old Wix site. Every reference in this repo was
-updated. If you find `tamufiji.info` anywhere, it is stale — the one surviving
-`tamufiji` string is an Instagram handle in a CMS hint, which is unrelated.
+retired that as an odd address and moved to **`aggiefiji.com`**, which it already
+owned through Wix. Every reference in this repo was updated. If you find
+`tamufiji.info` anywhere, it is stale — the one surviving `tamufiji` string is an
+Instagram handle in a CMS hint, which is unrelated.
+
+The apex serves and `www` redirects to it. That is deliberate and slightly
+against Vercel's own recommendation — the reasoning is in step 7.
 
 `npm run build`, `npm run lint` and `npm run typecheck` all pass. Twelve routes
 build. Repo: `github.com/aggiefiji/aggie-fiji-website` (public — see constraint 6
@@ -46,18 +51,21 @@ in `CLAUDE.md` before changing that).
 
 | Page | Route | State |
 |---|---|---|
-| Home | `/` | Complete. Events, rotating giving figures, leadership, photos. |
+| Home | `/` | Complete. Events, rotating giving figures, leadership, photos (expand). |
 | Events | `/events` | Complete. Calendar-driven, no fallback. |
 | Giving | `/donations` | Complete. All three avenues on one page. |
 | How to Give | `/donations/give` | Complete. Two steps, memo carried from the Give button pressed. |
 | Donor Wall | `/donations/donors` | Built. **Needs names.** |
-| Our Chapter | `/about` | Complete. **One headshot missing.** |
-| Gallery | `/gallery` | Complete. Five photos, no captions. |
+| Our Chapter | `/about` | Complete. Headshots expand. **One headshot missing.** |
+| Gallery | `/gallery` | Complete. Photos expand. Five photos, no captions. |
 | Contact | `/contact` | Complete. |
 
 ---
 
-## 🔴 Do these before launch — in this order
+## ✅ Launch checklist — all eight done
+
+Kept rather than deleted: every step records a decision or a trap, and the next
+person to move this site will need them.
 
 ### 1. ✅ Version control — DONE
 
@@ -225,11 +233,31 @@ so `npm run preview` looks different from `npm run dev`.
 - **A button label was longer than the card holding it** on `/donations`,
   shortened to "See our recognized donors".
 
-### 7. Point aggiefiji.com at Vercel — DO THIS LAST
+### 7. ✅ Point aggiefiji.com at Vercel — DONE, August 2026
 
-The domain is registered at **Wix** and currently serves the old Wix site. The
-goal is that `aggiefiji.com` serves THIS site, with the address bar still
-reading `aggiefiji.com`.
+Kept in full, because this is the procedure to repeat if the domain ever moves
+again, and because two of the traps below cost real time.
+
+**What was actually done:** Wix's three apex `A` records — `185.230.63.107`,
+`.186`, `.171`, its shared-hosting pool — were replaced with Vercel's single
+Anycast address, `www` was pointed at Vercel's CNAME target, and the Emma DKIM
+records were left alone.
+
+**Wix hands out three A records for one apex; Vercel needs one.** That is
+round-robin across shared hosts on Wix's side versus a single Anycast address on
+Vercel's. **Every Wix IP has to go.** Leaving even one sends roughly one visitor
+in three to a host that no longer serves the site — intermittently, and looking
+fine from whichever machine happens to have cached the right answer. It reports
+as "the site works sometimes", which is the worst bug to be handed.
+
+**Do not touch the `e2ma-k*._domainkey` CNAMEs.** They point at `e2ma.net`
+(Emma, an email platform) and are DKIM keys proving mail from `aggiefiji.com` is
+genuine. Deleting them breaks nothing visible — it quietly moves chapter email
+into spam folders weeks later. Same for MX and TXT records. **Somebody owns that
+Emma account; find out who before the next handover.**
+
+The domain is registered at **Wix**. The goal was that `aggiefiji.com` serves
+THIS site, with the address bar still reading `aggiefiji.com`.
 
 **Point the DNS; do not use a Wix redirect.** A redirect sends visitors to the
 `.vercel.app` address and leaves that showing in the address bar, which is the
@@ -365,8 +393,6 @@ the domain to a registrar under `fijitamu@gmail.com` would close the last one.
 
 ---
 
----
-
 ## What changed in the August 2026 pass
 
 **Giving was rebuilt end to end.** The three fund pages folded into `/donations`
@@ -397,6 +423,15 @@ chapter and moved out of the pending list into `declinedIntegrations`.
 
 **Polish:** scroll reveals site-wide, skeleton loaders, tooltips on buttons where
 the label can't carry the whole answer, a rotating homepage giving figure.
+
+**Photos expand.** Alumni reviewing the live site asked for it: officer
+headshots, gallery photos, and the homepage strip all open in an overlay, with
+arrow-key navigation, a counter, Escape to close, and focus handed back to the
+photo you came from. The homepage gains the most — that strip crops to 4:3, so
+its thumbnails are the middle of each photo rather than the photo.
+`src/components/Lightbox.tsx` — read the header comment before changing it. The
+trigger is a real `<a href>` to the image file, so with JavaScript off a click
+still opens the photo.
 
 ### Bugs found and fixed
 
