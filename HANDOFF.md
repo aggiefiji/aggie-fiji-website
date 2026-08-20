@@ -246,8 +246,21 @@ survives untouched.
 resolves, so do them after step 2 confirms.
 
 1. **Vercel → project → Settings → Domains → Add.** Enter `aggiefiji.com`.
-   Vercel will offer to add `www.aggiefiji.com` too — take it, and set the apex
-   as primary so `www` redirects to it rather than the reverse. Vercel shows the
+   Vercel will offer to add `www.aggiefiji.com` too — take it, but **decline the
+   suggested apex → www redirect.**
+
+   **There is no "primary domain" switch.** Vercel expresses primary purely as
+   which way the redirect runs, so to make the apex the one that serves: Domains
+   → Edit on `www.aggiefiji.com` → **Redirect to** → `aggiefiji.com`. Both DNS
+   records are still needed — `www` has to resolve before it can redirect.
+
+   Note that Vercel recommends the opposite (`www` serving, apex redirecting),
+   because the DNS spec forbids CNAME on an apex, so an apex is pinned to a
+   hard-coded A-record IP and Vercel has less room to steer traffic. They confirm
+   the apex is fully supported via Anycast. The chapter chose the apex because
+   `aggiefiji.com` is what goes on a flyer. Deliberate, not an oversight.
+
+   Vercel shows the
    exact records to create; **read them off the dashboard rather than trusting
    any value written down here**, because they are per-project. Older projects
    get `76.76.21.21`; newer ones get an anycast address such as `216.198.79.1`,
