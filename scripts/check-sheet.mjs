@@ -133,8 +133,42 @@ for (const [label, tab, goalKey] of FUNDS) {
     continue;
   }
 
-  const rows = res.rows.slice(1).filter((r) => r?.[0] && r?.[1]);
-  const raised = rows.reduce((s, r) => s + money(r[1]), 0);
+  /*
+   * READ BY HEADER NAME, EXACTLY AS THE SITE DOES.
+   *
+   * This used to take columns A and B by position. That made the check
+   * *disagree with production*: src/lib/sheets.ts builds each row from the
+   * header row and filters on r["Date"] && r["Amount"], so renaming a header,
+   * inserting a column, or leaving a title row above the headers makes the site
+   * read nothing while a positional check still totals everything happily.
+   *
+   * A diagnostic that can report healthy while the live site shows $0 is worse
+   * than no diagnostic at all — it sends you looking at the network, the API
+   * key, and the cache, none of which are broken.
+   */
+  const header = (res.rows[0] ?? []).map((h) => String(h ?? "").trim());
+  const dateCol = header.findIndex((h) => h.toLowerCase() === "date");
+  const amountCol = header.findIndex((h) => h.toLowerCase() === "amount");
+
+  if (dateCol === -1 || amountCol === -1) {
+    const missing = [dateCol === -1 && '"Date"', amountCol === -1 && '"Amount"']
+      .filter(Boolean)
+      .join(" and ");
+    console.log(`  ${red("✗")} ${label.padEnd(22)} ${red(`no ${missing} column`)}`);
+    console.log(
+      `      Row 1 of "${tab}" reads: ${header.length ? header.map((h) => `"${h}"`).join(", ") : dim("(empty)")}`,
+    );
+    console.log(
+      dim("      The site matches these names exactly. Rename row 1 to Date and Amount,"),
+    );
+    console.log(dim("      and make sure no title row sits above the headers."));
+    problems++;
+    continue;
+  }
+
+  const body = res.rows.slice(1);
+  const rows = body.filter((r) => r?.[dateCol] && r?.[amountCol]);
+  const raised = rows.reduce((s, r) => s + money(r[amountCol]), 0);
   const pct = goal > 0 ? Math.round((raised / goal) * 100) : 0;
 
   const goalNote =
@@ -145,6 +179,37 @@ for (const [label, tab, goalKey] of FUNDS) {
     `  ${green("✓")} ${label.padEnd(22)} ${String(rows.length).padStart(3)} gift(s)  ` +
       `$${raised.toLocaleString().padStart(9)}  ${goalNote}${goal > 0 ? dim(` · ${pct}%`) : ""}`,
   );
+
+  /*
+   * Rows the SITE will silently ignore. A gift with an amount but no date is
+   * the single most likely reason a treasurer says "I added it and the total
+   * did not move" — the row is plainly there in the spreadsheet, and invisible
+   * to the site.
+   */
+  const dropped = body.filter(
+    (r) => (r?.[dateCol] || r?.[amountCol]) && !(r?.[dateCol] && r?.[amountCol]),
+  );
+  if (dropped.length > 0) {
+    console.log(
+      `      ${yellow("!")} ${dropped.length} row(s) ignored — every gift needs BOTH a date and an amount.`,
+    );
+    for (const r of dropped.slice(0, 5)) {
+      const why = !r?.[dateCol] ? "no date" : "no amount";
+      console.log(dim(`        · ${why}: ${JSON.stringify(r).slice(0, 70)}`));
+    }
+    problems++;
+  }
+
+  const unparsed = rows.filter((r) => money(r[amountCol]) === 0);
+  if (unparsed.length > 0) {
+    console.log(
+      `      ${yellow("!")} ${unparsed.length} amount(s) read as $0 — check for text, errors, or blanks.`,
+    );
+    for (const r of unparsed.slice(0, 5)) {
+      console.log(dim(`        · ${JSON.stringify(r[amountCol])}`));
+    }
+    problems++;
+  }
 }
 
 /* ------------------------------------------------------------- Wishlist --- */
