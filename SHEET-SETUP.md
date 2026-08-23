@@ -174,6 +174,43 @@ guaranteed to match because it was copied rather than rebuilt.
 `src/lib/funds.ts` maps each fund to its tab name and Settings key. If you
 rename a tab in the sheet, change it there too — those two must agree.
 
+## "I edited the sheet and the site didn't change"
+
+**Wait five minutes and load the page twice.** Almost always that is the whole
+answer, and nothing is wrong.
+
+The site does not read the sheet on every visit — it caches. That cap is what
+keeps a thousand alumni opening the site after a newsletter from costing a
+thousand Google calls, so it is deliberate.
+
+**Three things about it are genuinely confusing, and all three are normal:**
+
+1. **The refresh you expect to work is the one that fetches.** When a page's
+   window expires, the next visitor gets the OLD page and the refresh happens
+   behind them. The new figure appears on the visit *after* that. So: refresh,
+   see the old number, refresh again, see the new one.
+2. **Every page has its own clock, and they do not line up.** A page nobody has
+   opened in an hour is long past its window, so it updates the moment you look
+   at it. A page you have been reloading all afternoon is usually *inside* its
+   window, so it keeps serving the same cached copy — and refreshing harder
+   does nothing at all. **The neglected page looks instant and the busy page
+   looks stuck**, which is the exact opposite of what anyone expects. This is
+   what makes the Donor Wall appear to update while a total appears frozen.
+3. **The page and the sheet data are cached separately**, each for five minutes.
+   A page can rebuild and still reuse a sheet response from four minutes ago, so
+   the honest worst case is about **ten minutes**, not five.
+
+**To make a change appear immediately** — you are showing the page at a chapter
+meeting, say — open the project on Vercel and redeploy. That rebuilds every page
+and clears both timers.
+
+**If a figure is still wrong after ten minutes**, then it is not the cache. Run
+`npm run check:sheet`: it reads the sheet exactly the way the site does and will
+name the problem, usually a header that no longer says `Date` or `Amount`, or a
+gift entered without a date.
+
+---
+
 ## Checking it works
 
 With `npm run dev` running, load `/donations`. The terminal prints a line for

@@ -137,6 +137,12 @@ twice and ships a generic page nobody sees.
   tests for TBD/TODO *anywhere* in a string. TBD in a title hides the event; TBD
   in a location omits the venue; marking an event private in Google hides it.
   Documented in `CALENDAR-SETUP.md` — don't change the rules without updating it.
+- **Sheet figures are cached on TWO independent five-minute clocks**, the
+  route's `revalidate` and the `fetch`'s. They do not line up, so worst-case
+  staleness is about ten minutes, not five — and because each page has its own
+  clock, a rarely-visited page appears to update instantly while a page someone
+  has been reloading appears frozen. That asymmetry reads as a bug and is not
+  one; it is explained for officers in `SHEET-SETUP.md`. Redeploy to force it.
 - **Every network call is bounded.** `fetch` has no default timeout, and a
   stalled connection never rejects, so the graceful-degradation paths never ran
   and `next build` died at Next's 60-second limit. Both Google readers use
