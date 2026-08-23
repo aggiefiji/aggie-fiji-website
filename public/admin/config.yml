@@ -46,10 +46,17 @@ backend:
   # Where the OAuth routes live. MUST be the origin the site actually answers
   # on, or the login popup calls a domain that is not serving this deployment.
   #
-  # TODO (at DNS cutover): change this to https://aggiefiji.com, and add the
-  # matching callback URL to the GitHub OAuth app at the same time. Until then
-  # it points at the Vercel address so the login can be tested.
-  base_url: https://aggie-fiji-website.vercel.app
+  # THIS AND THE OAUTH APP'S REDIRECT URI ARE ONE SETTING IN TWO PLACES.
+  # If they disagree, or if either disagrees with the address actually being
+  # browsed, the login popup gets the token and cannot hand it back — a
+  # postMessage to the wrong origin is dropped with no error anywhere. The
+  # popup gives up after ten seconds and explains itself; see the long comment
+  # in src/app/api/callback/route.ts.
+  #
+  # Changed to aggiefiji.com at the DNS cutover, August 2026. Logging in via
+  # the .vercel.app address no longer works, which is correct — there is one
+  # live origin and this is it.
+  base_url: https://aggiefiji.com
   auth_endpoint: api/auth
 
 media_folder: "public/uploads"
