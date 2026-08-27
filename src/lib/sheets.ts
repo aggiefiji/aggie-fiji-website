@@ -31,19 +31,29 @@ export type { DonationEntry, DonorName, FundTotals, WishlistItem };
 const SHEETS_BASE = "https://sheets.googleapis.com/v4/spreadsheets";
 
 /**
- * How long a fetched tab stays cached. 5 minutes is well inside quota.
+ * How long a fetched tab stays cached.
  *
- * ⚠️ Changing this is TWO edits. Every page that shows sheet figures also
- * declares `export const revalidate = 300` as a literal, because Next.js reads
- * route segment config statically and rejects an imported constant at build
- * time. Update this and the literal in:
- *   src/app/page.tsx
- *   src/app/donations/page.tsx
- *   src/app/donations/donors/page.tsx
- * (The wishlist, tailgate and foundations pages were deleted in August 2026
- * when they folded into /donations.)
+ * THIS IS NOW THE ONLY THING THAT MAKES A FIGURE STALE. The sheet-backed pages
+ * set `revalidate = 0`, so each one re-renders on every request; what they
+ * render is whatever this cache holds. Sixty seconds is the whole staleness
+ * budget, and the Apps Script trigger on the sheet cuts it to zero on an edit.
+ *
+ * ── WHY THIS CACHE STILL EXISTS AT ALL ──────────────────────────────────────
+ * It is not about speed. It is the only thing standing between the chapter and
+ * the Google Sheets quota of 300 read requests per minute. One load of the
+ * homepage costs roughly eight reads. Uncached, two hundred alumni opening a
+ * newsletter link inside a minute would be sixteen hundred reads, Google would
+ * start refusing, and every figure on the site would render as $0 — the site
+ * lying about the campaign at the exact moment the most people are looking.
+ *
+ * Cached, the same burst costs eight reads, because they all share one window.
+ * That is what this constant buys, and why it should not go to zero.
+ *
+ * ⚠️ Was 300. Lowering it costs proportionally more quota headroom: the ceiling
+ * is roughly 8 × (60 / this value) reads per minute. At 60s that is 8/min
+ * against a limit of 300. Do not drop it below about 10 without doing that sum.
  */
-export const REVALIDATE_SECONDS = 300;
+export const REVALIDATE_SECONDS = 60;
 
 /*
  * How long a fetched tab stays cached, and why it differs in development.

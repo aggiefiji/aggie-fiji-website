@@ -31,14 +31,32 @@ import {
  * thing three times.
  */
 /*
- * 300 seconds, matching REVALIDATE_SECONDS in src/lib/sheets.ts.
+ * ZERO — RENDER THIS PAGE ON EVERY REQUEST.
+ *
+ * It was 300, which made the page a static file rebuilt at most every five
+ * minutes. That is the correct default for most sites and the wrong one here:
+ * the treasurer's whole job on this page is publishing a number that just
+ * changed, and being told "wait five minutes, then load it twice" is not an
+ * answer anyone accepts.
+ *
+ * `revalidate = 0` is NOT `dynamic = "force-dynamic"`. force-dynamic also sets
+ * fetchCache to force-no-store, which would strip the cache off every Google
+ * call — roughly eight per page load, scaling with traffic, straight through
+ * the Sheets quota of 300 requests a minute the first time a newsletter goes
+ * out. `revalidate = 0` re-renders the page every request while explicitly
+ * LEAVING fetches that set their own positive revalidate alone. The page is
+ * always fresh; the sheet reads are still pooled. Do not "simplify" this to
+ * force-dynamic.
+ *
+ * How fresh the figures are is therefore set by REVALIDATE_SECONDS in
+ * src/lib/sheets.ts (60s), or immediately when the sheet's Apps Script trigger
+ * calls /api/revalidate.
  *
  * MUST be a literal. Next.js reads route segment config statically at build
- * time, so an imported constant (or any expression) is rejected with "Invalid
- * segment configuration export detected" — it cannot evaluate the import. The
- * duplication is forced by the framework; keep it in step with src/lib/sheets.ts by hand.
+ * time, so an imported constant is rejected with "Invalid segment
+ * configuration export detected" — it cannot evaluate the import.
  */
-export const revalidate = 300;
+export const revalidate = 0;
 
 export default async function HomePage() {
   const page = getPage("home");

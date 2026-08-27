@@ -259,38 +259,37 @@ calendar fetch is tagged too, so a calendar webhook would need no new code.
 
 ## "I edited the sheet and the site didn't change"
 
-**Wait five minutes and load the page twice.** Almost always that is the whole
-answer, and nothing is wrong.
+**Wait a minute and reload.** That is almost always the whole answer.
 
-The site does not read the sheet on every visit — it caches. That cap is what
-keeps a thousand alumni opening the site after a newsletter from costing a
-thousand Google calls, so it is deliberate.
+Every page that shows sheet figures is rendered fresh on each visit, so opening
+the site in a new tab always re-reads. What it re-reads is a pooled copy of the
+sheet that is refreshed **once a minute** — and immediately, if the Apps Script
+trigger above is set up.
 
-**Three things about it are genuinely confusing, and all three are normal:**
+That one-minute pool is not there for speed. It is the only thing between the
+chapter and Google's limit of 300 sheet reads per minute. One homepage load
+costs about eight reads; without the pool, a couple of hundred alumni opening a
+newsletter link at once would exceed the limit, Google would start refusing, and
+**every figure on the site would render as $0** — the site denying the campaign
+exists at the moment the most people are looking at it. One minute of staleness
+is the price of that not happening.
 
-1. **The refresh you expect to work is the one that fetches.** When a page's
-   window expires, the next visitor gets the OLD page and the refresh happens
-   behind them. The new figure appears on the visit *after* that. So: refresh,
-   see the old number, refresh again, see the new one.
-2. **Every page has its own clock, and they do not line up.** A page nobody has
-   opened in an hour is long past its window, so it updates the moment you look
-   at it. A page you have been reloading all afternoon is usually *inside* its
-   window, so it keeps serving the same cached copy — and refreshing harder
-   does nothing at all. **The neglected page looks instant and the busy page
-   looks stuck**, which is the exact opposite of what anyone expects. This is
-   what makes the Donor Wall appear to update while a total appears frozen.
-3. **The page and the sheet data are cached separately**, each for five minutes.
-   A page can rebuild and still reuse a sheet response from four minutes ago, so
-   the honest worst case is about **ten minutes**, not five.
+**If a figure is still wrong after a couple of minutes**, it is not the cache:
 
-**To make a change appear immediately** — you are showing the page at a chapter
-meeting, say — open the project on Vercel and redeploy. That rebuilds every page
-and clears both timers.
+1. Run `npm run check:sheet`. It reads the sheet exactly the way the site does
+   and names the problem — usually a header that no longer reads `Date` or
+   `Amount`, or a gift entered without a date.
+2. If that is clean, check the Apps Script trigger: Extensions → Apps Script →
+   Executions. A run logging `401` means the two copies of the secret differ; a
+   `503` means Vercel does not have `REVALIDATE_SECRET`, or has it but has not
+   been redeployed since.
+3. Still stuck? Redeploy from Vercel. That clears everything.
 
-**If a figure is still wrong after ten minutes**, then it is not the cache. Run
-`npm run check:sheet`: it reads the sheet exactly the way the site does and will
-name the problem, usually a header that no longer says `Date` or `Amount`, or a
-gift entered without a date.
+**A note on what changed, August 2026.** These pages used to be static files
+rebuilt every five minutes, which meant a figure could be up to ten minutes old
+and needed loading twice to appear. They now render per request. Events are
+still on the old five-minute cycle — the calendar changes rarely and has its own
+quota.
 
 ---
 

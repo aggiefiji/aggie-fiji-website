@@ -146,12 +146,16 @@ twice and ships a generic page nobody sees.
   **`revalidateTag`'s second argument is load-bearing** — Next's recommended
   `"max"` serves stale content while refreshing, which is the exact behaviour
   the endpoint exists to escape. It passes `{ expire: 0 }`. Don't "fix" that.
-- **Sheet figures are cached on TWO independent five-minute clocks**, the
-  route's `revalidate` and the `fetch`'s. They do not line up, so worst-case
-  staleness is about ten minutes, not five — and because each page has its own
-  clock, a rarely-visited page appears to update instantly while a page someone
-  has been reloading appears frozen. That asymmetry reads as a bug and is not
-  one; it is explained for officers in `SHEET-SETUP.md`. Redeploy to force it.
+- **Sheet-backed pages render per request; only the sheet read is cached.**
+  The four routes that show sheet figures set `revalidate = 0`, so a new tab
+  always re-renders. Staleness comes solely from `REVALIDATE_SECONDS` (60s) in
+  `sheets.ts`. **`revalidate = 0` is not `dynamic = "force-dynamic"`** — the
+  latter also forces `fetchCache: "force-no-store"`, stripping the cache off
+  roughly eight Google calls per page load and scaling them with traffic,
+  which walks into the 300-reads-per-minute quota the first time a newsletter
+  goes out and renders every figure as $0. Keep the fetch cache; it is a quota
+  guard, not a speed optimisation. `/events` stays on 300s — different source,
+  different quota, changes rarely.
 - **Every network call is bounded.** `fetch` has no default timeout, and a
   stalled connection never rejects, so the graceful-degradation paths never ran
   and `next build` died at Next's 60-second limit. Both Google readers use
