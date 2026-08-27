@@ -174,6 +174,89 @@ guaranteed to match because it was copied rather than rebuilt.
 `src/lib/funds.ts` maps each fund to its tab name and Settings key. If you
 rename a tab in the sheet, change it there too — those two must agree.
 
+## Making edits appear instantly (optional)
+
+The five-minute cache below is the fallback. On top of it, the sheet can tell
+the site the moment it changes, so a figure updates in seconds instead of
+minutes. Worth having when a treasurer logs a gift and shows the page at a
+meeting; harmless to skip.
+
+**This is entirely optional.** If the trigger is deleted, the script's owner
+graduates, or Apps Script hits a quota, the site quietly falls back to the
+five-minute cycle. Nothing breaks.
+
+### One-time setup
+
+**1. Make a secret.** On your own machine:
+
+```bash
+openssl rand -hex 32 | pbcopy
+```
+
+Never put it in this repo, in a commit, or in a chat message.
+
+**2. Vercel** → Settings → Environment Variables → `REVALIDATE_SECRET`, paste,
+all environments. **Not** `NEXT_PUBLIC_` — that prefix ships a value to every
+visitor's browser. Redeploy.
+
+**3. The sheet** → Extensions → Apps Script.
+   - Project Settings → Script Properties → add `REVALIDATE_SECRET` with the
+     same value.
+   - Paste this into the editor:
+
+```js
+const ENDPOINT = "https://aggiefiji.com/api/revalidate";
+
+function notifySite() {
+  // An "on change" trigger fires on nearly every keystroke. Without this,
+  // typing one row of gifts would fire dozens of rebuilds.
+  const cache = CacheService.getScriptCache();
+  if (cache.get("pending")) return;
+  cache.put("pending", "1", 30);
+
+  const secret = PropertiesService.getScriptProperties()
+    .getProperty("REVALIDATE_SECRET");
+
+  const res = UrlFetchApp.fetch(ENDPOINT, {
+    method: "post",
+    headers: { "x-revalidate-secret": secret },
+    muteHttpExceptions: true,
+  });
+  console.log(res.getResponseCode(), res.getContentText());
+}
+```
+
+   - Triggers (the clock icon) → Add trigger → function `notifySite`, source
+     **From spreadsheet**, event type **On change**. Approve the permissions
+     prompt.
+
+**4. Test it.** Run `notifySite` from the editor. The log should show `200` and
+`{"revalidated":true,...}`. A `401` means the two copies of the secret differ.
+A `503` means Vercel has not got it, or you have not redeployed since adding it.
+
+### What gets revalidated
+
+`/`, `/donations`, `/donations/give`, `/donations/donors` — every route that
+reads the sheet. `/donations/give` is on the list because it checks memo details
+against live wishlist rows.
+
+`/events` is not, because it reads the calendar rather than the sheet. The
+calendar fetch is tagged too, so a calendar webhook would need no new code.
+
+### Notes for whoever inherits this
+
+- **The script lives in the sheet, not in this repo.** It is the one piece of
+  this system that a `git clone` will not give you. If giving figures stop
+  updating instantly but still update within five minutes, the trigger is what
+  broke — start at Extensions → Apps Script → Triggers.
+- **Installable triggers do not fire for edits made by other scripts or by the
+  Sheets API** — only by a person editing the sheet. That covers the real case.
+- **The endpoint is safe to leave public.** It accepts POST only, takes the
+  secret from a header rather than the URL, compares it in constant time, and
+  answers a wrong secret with a bare 401.
+
+---
+
 ## "I edited the sheet and the site didn't change"
 
 **Wait five minutes and load the page twice.** Almost always that is the whole

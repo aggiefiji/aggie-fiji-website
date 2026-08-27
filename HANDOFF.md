@@ -424,6 +424,13 @@ chapter and moved out of the pending list into `declinedIntegrations`.
 **Polish:** scroll reveals site-wide, skeleton loaders, tooltips on buttons where
 the label can't carry the whole answer, a rotating homepage giving figure.
 
+**The sheet can now push.** A Google Apps Script trigger POSTs to
+`/api/revalidate` when the giving sheet changes, so a new gift shows in seconds
+rather than up to ten minutes. Needs `REVALIDATE_SECRET` set in Vercel and in
+the sheet's Script Properties — setup and the script itself are in
+`SHEET-SETUP.md`. Optional: without it the site falls back to its five-minute
+cycle, which is why nothing breaks when the trigger is lost at a handover.
+
 **Photos expand.** Alumni reviewing the live site asked for it: officer
 headshots, gallery photos, and the homepage strip all open in an overlay, with
 arrow-key navigation, a counter, Escape to close, and focus handed back to the

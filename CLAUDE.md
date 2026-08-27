@@ -137,6 +137,15 @@ twice and ships a generic page nobody sees.
   tests for TBD/TODO *anywhere* in a string. TBD in a title hides the event; TBD
   in a location omits the venue; marking an event private in Google hides it.
   Documented in `CALENDAR-SETUP.md` — don't change the rules without updating it.
+- **The sheet can push, as well as the site pulling.** `POST /api/revalidate`
+  with an `x-revalidate-secret` header clears the sheet caches on demand; a
+  Google Apps Script trigger on the sheet calls it. **The Apps Script half lives
+  in the sheet, not in this repo** — `SHEET-SETUP.md` has it written out,
+  because a `git clone` will not give it to you. It is strictly an accelerator:
+  delete the trigger and everything still works on the five-minute cycle.
+  **`revalidateTag`'s second argument is load-bearing** — Next's recommended
+  `"max"` serves stale content while refreshing, which is the exact behaviour
+  the endpoint exists to escape. It passes `{ expire: 0 }`. Don't "fix" that.
 - **Sheet figures are cached on TWO independent five-minute clocks**, the
   route's `revalidate` and the `fetch`'s. They do not line up, so worst-case
   staleness is about ten minutes, not five — and because each page has its own

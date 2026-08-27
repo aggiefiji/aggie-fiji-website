@@ -102,7 +102,20 @@ async function fetchTab(tab: string): Promise<Record<string, string>[]> {
 
   try {
     const res = await fetch(url, {
-      next: { revalidate: CACHE_SECONDS },
+      /*
+       * THE TAG IS WHAT MAKES ON-DEMAND REVALIDATION WORK.
+       *
+       * Two caches sit between the sheet and a visitor: the rendered page, and
+       * this fetch response. `revalidatePath` only clears the first. Without
+       * this tag, /api/revalidate would faithfully re-render every page and
+       * hand each one a Google response up to five minutes old — the endpoint
+       * would return `revalidated: true` and change nothing anyone can see,
+       * which is the worst kind of working.
+       *
+       * `revalidateTag("sheets")` clears this entry, so the re-render actually
+       * calls Google. Keep the tag on every sheet read.
+       */
+      next: { revalidate: CACHE_SECONDS, tags: ["sheets"] },
       // Without this, a stalled connection hangs the render forever. See
       // FETCH_TIMEOUT_MS above — this is the line that keeps the build alive.
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),

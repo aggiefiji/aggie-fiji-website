@@ -317,7 +317,10 @@ export async function getCalendarEvents(): Promise<CalendarResult> {
 
   try {
     const res = await fetch(url, {
-      next: { revalidate: CALENDAR_CACHE_SECONDS },
+      // Tagged like the sheet reads, so /api/revalidate can clear the calendar
+      // too. Nothing triggers this today — the Apps Script hook is on the
+      // sheet — but a calendar webhook would need no code change.
+      next: { revalidate: CALENDAR_CACHE_SECONDS, tags: ["calendar"] },
       // Bounded, so a stalled Google cannot hang the build. See above.
       signal: AbortSignal.timeout(CALENDAR_FETCH_TIMEOUT_MS),
     });
