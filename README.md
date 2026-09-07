@@ -26,6 +26,17 @@ Dropdown parents are real pages, not just menu headers — clicking "Donations &
 Philanthropy" goes to the Giving page. Nothing on this site is reachable *only*
 by hovering, and the footer lists every page flat.
 
+## The other docs
+
+| File | What it is for |
+|---|---|
+| `CLAUDE.md` | The rules — constraints and conventions, for anyone (or anything) writing code here |
+| `ARCHITECTURE.md` | How the stack works, and recipes for adding to it |
+| `DESIGN.md` | The visual system — colours, type, components, motion |
+| `SHEET-SETUP.md` | The giving sheet's structure |
+| `CALENDAR-SETUP.md` | The events calendar and its publish rules |
+| `OPERATIONS.md` | Live state, open items, hosting, DNS, handover |
+
 ---
 
 ## For chapter officers — updating the site
@@ -52,6 +63,8 @@ Goals live in its `Settings` tab, so the treasurer changes a target without
 anyone touching the website. **See [`SHEET-SETUP.md`](./SHEET-SETUP.md)**, which
 also covers the `Memo Name` column that controls what a donor is told to write.
 
+Figures on the site are at most **about a minute** old.
+
 ### Everything else — the admin screen
 
 1. Go to `aggiefiji.com/admin` and click **Login with GitHub**.
@@ -62,8 +75,9 @@ also covers the `Memo Name` column that controls what a donor is told to write.
 You need a GitHub account with access to the site's repository. Whoever holds
 the website role grants that, and removes it at handover.
 
-What lives here: officers, newsletters, gallery photos, and page copy. Not
-events (calendar) and not figures (sheet).
+What lives here: officers, newsletters, gallery photos, page copy, chapter
+contact details and social handles. Not events (calendar) and not figures
+(sheet).
 
 ### Things that update themselves
 
@@ -80,10 +94,11 @@ The old site did this and it was its single biggest failure. An RSVP or ticketin
 tool may be *additional* to the details already on the page; it may never be a
 gate in front of them.
 
-### Before anything goes live
+### What the chapter still owes
 
-Work through `CONTENT-TODO.md`. While the site runs locally, an amber banner
-lists what is still unfinished.
+See the content section of [`OPERATIONS.md`](./OPERATIONS.md). While the site
+runs locally, an amber banner lists what is still unfinished; in production,
+unfinished content simply doesn't render.
 
 ---
 
@@ -105,32 +120,41 @@ npx decap-server     # then open http://localhost:3000/admin
 `local_backend: true` in `public/admin/config.yml` only applies on localhost, so
 it stays switched on and does not affect production.
 
+**`git pull` first.** The CMS commits to this repo as whichever officer is
+logged in, so it changes without you.
+
 ### Checks
 
 ```bash
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint
 npm run build        # the one that catches route-segment-config errors
+npm run preview      # build + start — production behaviour, dev markers hidden
 npm run check:sheet      # verifies every tab and goal key the site expects
 npm run check:calendar   # verifies the calendar is readable and public
 ```
 
 The two `check:` scripts are zero-dependency diagnostics that name the cause of a
 failure instead of leaving you guessing. Run them before assuming the site is
-broken.
+broken. `check:sheet` reads **by header name**, matching the site — it used to
+read columns by position, so it could report healthy while the site read nothing.
+
+**Test the preview build on a phone, not the dev build.** Production hides all
+dev-only markers, so the two look different.
 
 ### Stack
 
 | Layer | Choice | Why |
 |---|---|---|
-| Framework | Next.js 16 (App Router), TypeScript | Full design control, static output, no runtime to babysit |
+| Framework | Next.js 16 (App Router), TypeScript, React 19 | Full design control, no runtime to babysit |
 | Styling | Tailwind CSS v4, tokens in `src/app/globals.css` | One `@theme` block controls the whole palette |
 | Content | JSON files in `/content`, read at build time | No database, no service to expire |
 | Events | Chapter Google Calendar, read server-side | Officers already live in Google Calendar |
-| Money | Chapter Google Sheet, read server-side, cached 5 min | The treasurer is already in it |
+| Money | Chapter Google Sheet, read server-side, 60s pool | The treasurer is already in it |
 | Admin | Decap CMS (`/public/admin`), GitHub OAuth | Git-backed, free, no vendor account |
-| Analytics | Vercel Web Analytics | No cookies, no consent banner, free at this scale |
-| Fonts | Fraunces + Inter via `next/font` | Freely licensed |
+| Analytics | Vercel Web Analytics + Speed Insights | No cookies, no consent banner, free at this scale |
+| Fonts | Fraunces + Inter via `next/font` | Freely licensed, self-hosted |
+| Hosting | Vercel (Hobby) | Free at this scale; the repo must stay public — see below |
 
 ### Layout
 
@@ -145,14 +169,20 @@ content/            ← everything an officer edits
 public/
   admin/              Decap CMS admin screen
   brand/              crest, monogram, favicon source
+  officers/           headshots placed by hand
+  uploads/            headshots uploaded through the CMS
 src/
   integrations.config.ts   every external service, switched from one place
-  lib/                     content, sheets, calendar, funds, memo, markdown
-  components/              layout shell, UI primitives, charts
-  app/                     one folder per route + the OAuth routes
+  lib/                     content, sheets, calendar, funds, memo, markdown, nav
+  components/              layout shell, UI primitives, charts, lightbox
+  app/                     one folder per route + the OAuth and revalidate routes
+scripts/                 zero-dependency check:sheet / check:calendar
 ```
 
-There is no `content/events/` — events come from the calendar. See `CLAUDE.md`.
+There is no `content/events/` — events come from the calendar.
+
+**Full module map, data flow and how-to-add recipes:
+[`ARCHITECTURE.md`](./ARCHITECTURE.md).**
 
 ### Giving, and why the memo matters
 
@@ -165,8 +195,17 @@ validated against real sheet rows and real tiers before it is ever displayed.
 
 ### Deploying
 
-1. Push to GitHub (see `HANDOFF.md` — the repo does not exist yet).
-2. Import the repo in Vercel. Build command `npm run build`, framework Next.js.
+The site is already deployed. Pushes to `main` deploy automatically, whether they
+come from you or from an officer hitting Publish in the CMS.
+
+To stand it up again from scratch:
+
+1. Import the repo in Vercel. Build command `npm run build`, framework Next.js.
+2. **Set `NEXT_PUBLIC_SITE_URL` and the Google + GitHub OAuth variables** in the
+   Vercel project. Without the first, your sitemap and link previews point at
+   `localhost:3000`. It is baked in at build time, so changing it needs a
+   redeploy, not just a save.
+3. Add the domain and point DNS.
 
 > **⚠️ Do not make the repository private.** Vercel's free Hobby plan will then
 > only deploy commits authored by the account owner, and the CMS commits as
@@ -174,12 +213,8 @@ validated against real sheet rows and real tiers before it is ever displayed.
 > commit reach GitHub, and watch the live site never update — silently. If the
 > chapter ever needs a private repo, it needs a Vercel Pro plan with it.
 
-3. **Set `NEXT_PUBLIC_SITE_URL` and the Google + GitHub OAuth variables** in the
-   Vercel project. Without the first, your sitemap and link previews point at
-   localhost.
-4. Point DNS away from Wix **only after** `CONTENT-TODO.md` is clear.
-
-Full ordered checklist in `HANDOFF.md`.
+The full variable table, the DNS procedure and its traps, and the OAuth setup are
+in [`OPERATIONS.md`](./OPERATIONS.md).
 
 ### Keeping it patched
 
@@ -198,4 +233,5 @@ project ends up off its LTS line with a broken build.
 
 **The one pinned dependency** is the Decap CMS tag in `public/admin/index.html`.
 That page holds a GitHub token, so it must not run whatever a CDN serves that
-day. Bump it deliberately at the same time, and regenerate its integrity hash.
+day. Bump it deliberately and regenerate its integrity hash — the command is in
+`OPERATIONS.md` and in that file's own comments.

@@ -176,14 +176,18 @@ rename a tab in the sheet, change it there too — those two must agree.
 
 ## Making edits appear instantly (optional)
 
-The five-minute cache below is the fallback. On top of it, the sheet can tell
+> **Not currently set up.** The live endpoint answers `503 — REVALIDATE_SECRET
+> is not set on this deployment`. Nothing is broken: without it the site runs on
+> the one-minute cycle described above, exactly as designed.
+
+The one-minute pool below is the fallback. On top of it, the sheet can tell
 the site the moment it changes, so a figure updates in seconds instead of
-minutes. Worth having when a treasurer logs a gift and shows the page at a
+within the minute. Worth having when a treasurer logs a gift and shows the page at a
 meeting; harmless to skip.
 
 **This is entirely optional.** If the trigger is deleted, the script's owner
 graduates, or Apps Script hits a quota, the site quietly falls back to the
-five-minute cycle. Nothing breaks.
+one-minute cycle. Nothing breaks.
 
 ### One-time setup
 
@@ -247,7 +251,7 @@ calendar fetch is tagged too, so a calendar webhook would need no new code.
 
 - **The script lives in the sheet, not in this repo.** It is the one piece of
   this system that a `git clone` will not give you. If giving figures stop
-  updating instantly but still update within five minutes, the trigger is what
+  updating instantly but still update within a minute, the trigger is what
   broke — start at Extensions → Apps Script → Triggers.
 - **Installable triggers do not fire for edits made by other scripts or by the
   Sheets API** — only by a person editing the sheet. That covers the real case.
@@ -279,8 +283,8 @@ is the price of that not happening.
 1. Run `npm run check:sheet`. It reads the sheet exactly the way the site does
    and names the problem — usually a header that no longer reads `Date` or
    `Amount`, or a gift entered without a date.
-2. If that is clean, check the Apps Script trigger: Extensions → Apps Script →
-   Executions. A run logging `401` means the two copies of the secret differ; a
+2. If that is clean, check the Apps Script trigger — **if one has been set up at
+   all**: Extensions → Apps Script → Executions. A run logging `401` means the two copies of the secret differ; a
    `503` means Vercel does not have `REVALIDATE_SECRET`, or has it but has not
    been redeployed since.
 3. Still stuck? Redeploy from Vercel. That clears everything.
@@ -305,4 +309,5 @@ any tab it can't read:
 | `404` | Wrong `GOOGLE_SHEETS_ID` |
 | `429` | Rate limited — raise `REVALIDATE_SECONDS` in `src/lib/sheets.ts` |
 
-Figures refresh about every 5 minutes; they are not instant by design.
+Figures refresh about once a minute; they are not instant by design unless the
+Apps Script trigger above is set up.

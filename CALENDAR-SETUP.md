@@ -19,7 +19,7 @@ this way — the tool you already use every day is the tool that updates the sit
 
 ---
 
-## Sheet-level setup — do this once
+## One-time setup
 
 1. In a **chapter-owned Google account** (not a personal one — it disappears
    when that brother graduates), create a new calendar named
@@ -119,7 +119,7 @@ Work down this list:
 | **Every** event missing, page says it cannot reach the calendar | Calendar isn't public, or the API key doesn't allow Calendar. Check the terminal |
 | Nothing at all, empty state | Calendar is genuinely empty in the window read (12 months back, 18 months ahead) |
 | An old event vanished | Past events are only read one year back, on purpose — the list is evidence the chapter is active, not an archive |
-| Change not showing yet | Figures refresh about every 5 minutes by design, not instantly |
+| Change not showing yet | Events refresh about every 5 minutes by design, not instantly |
 
 With `npm run dev` running, the terminal prints a line for each problem, and the
 events page shows a dev-only note saying where events came from.

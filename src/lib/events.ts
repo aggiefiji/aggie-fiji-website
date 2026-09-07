@@ -1,29 +1,40 @@
 import "server-only";
 
 /**
- * EVENTS RESOLVER — decides where the events list comes from.
+ * EVENTS RESOLVER — the single entry point every page uses for events.
  * ---------------------------------------------------------------------------
- * Two sources exist, and this module is the only place that chooses between
- * them, so no page has to know which is live:
+ * THERE IS ONE SOURCE: the chapter Google Calendar (src/lib/calendar.ts).
  *
- *   1. The chapter Google Calendar (src/lib/calendar.ts) — the intended source.
- *   2. Nothing. There is no second source — see getResolvedEvents() below.
+ * There used to be a second — JSON files in content/events/, read as a safety
+ * net when the calendar could not be reached. Those files, and the getAllEvents()
+ * reader behind them, were deleted in August 2026.
  *
- * WHY A FALLBACK AT ALL. Events are the most-visited content on this site and
- * a live feed has failure modes a file does not: someone flips the calendar to
- * private, the API key gets restricted, a Google outage. The rule is that the
- * page degrades to a stale list rather than an empty one — an alum seeing last
- * month's dinner learns the chapter is active; an alum seeing nothing concludes
- * the site is dead, which is the impression this rebuild exists to fix.
+ * WHY NO FALLBACK. A fallback list is only useful if somebody keeps it current,
+ * and nobody keeps a file current that nobody ever sees. What it actually
+ * produced was a stale list, shown at exactly the moment the site could not tell
+ * it was stale. An alum who drives to an event that moved is worse served than
+ * one who is told plainly that the calendar could not be read.
  *
- * The fallback fires ONLY on failure, never on an empty-but-healthy calendar.
- * That distinction is why calendar.ts returns `{ ok: false }` instead of `[]`:
- * a quiet summer should show the real empty state, not resurrect old JSON.
+ * So this module distinguishes the two things an empty list can mean, and hands
+ * that distinction to the page as `degraded`:
  *
- * THE PLACEHOLDER GATE APPLIES TO BOTH SOURCES. calendar.ts refuses to publish
- * an event with TBD/TODO in the title; the same rule is applied to JSON events
- * here. Without it a placeholder file renders its title as a heading in
- * production, because EventCard is handed a title and shows it.
+ *   degraded: true   — configured but unreadable. "We cannot reach the calendar
+ *                      right now." A fault on our end, and it says so.
+ *   degraded: false  — the calendar was read and is quiet. "No events scheduled."
+ *
+ * That is why calendar.ts returns `{ ok: false }` rather than `[]`: an empty
+ * array cannot carry the difference, and a quiet summer must not look like an
+ * outage.
+ *
+ * `EventsSource` still names a "content" variant. It is what `source` reads as
+ * when the calendar is not configured at all and the list is empty — not a
+ * second source of events. Do not add one; the source that drifts is the one
+ * nobody watches.
+ *
+ * THE PLACEHOLDER GATE STILL APPLIES. calendar.ts refuses to publish an event
+ * with TBD/TODO in the title, and publishable() below enforces the same rule
+ * here, in production only — development keeps unfinished events visible so an
+ * officer can see what needs work.
  */
 
 import type { ChapterEvent } from "@/lib/content";
