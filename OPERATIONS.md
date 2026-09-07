@@ -65,8 +65,18 @@ pointed at a dead address.
 > compiled into the build, not read at request time, so saving a new value
 > changes nothing until the next deployment.
 
-**Next step, not yet done:** submit `https://aggiefiji.com/sitemap.xml` to Google
-Search Console. The URLs are correct now, but Google still has the old set.
+**Google Search Console** is set up on the chapter account as a URL-prefix
+property for `https://aggiefiji.com`, and the sitemap has been submitted.
+
+> ⚠️ **Do not delete `public/googlefaf522cc98014818.html`.** It looks like stray
+> junk in `public/`, and it is not — it is what proves to Google that the chapter
+> owns this domain. Google re-checks it periodically, so removing it
+> un-verifies the property silently, weeks later, and Search Console stops
+> reporting. Leave it in place permanently.
+
+URL-prefix rather than the DNS-based Domain property, deliberately: `www` 308s
+to the apex, so all traffic consolidates on one hostname and there was no need
+to touch the Wix DNS records to set this up.
 
 ### `www.aggiefiji.com` redirects to the apex
 
