@@ -22,33 +22,19 @@ deploys; the custom domain is the one to give people.
 officer is logged in, so it changes without you.
 
 **Verified working against production:** Google Sheet reads from Vercel's
-network, Google Calendar reads, the memo system end to end, and all five
-security headers (`strict-transport-security`, `x-content-type-options`,
+network, Google Calendar reads, the memo system end to end, the apex serving
+with `www` redirecting to it (308), correct `aggiefiji.com` URLs in
+`sitemap.xml` and `robots.txt`, and all five security headers (`strict-transport-security`, `x-content-type-options`,
 `x-frame-options`, `referrer-policy`, `permissions-policy`).
 
 ---
 
-## 🔴 Open — verified, in priority order
+## 🔴 Open — verified
 
-### 1. `NEXT_PUBLIC_SITE_URL` is still `https://tamufiji.info`
+*Checked against production. The two domain items below were fixed on
+7 September 2026 — see Resolved.*
 
-**Confirmed live:** `aggiefiji.com/sitemap.xml` and `/robots.txt` both emit
-`tamufiji.info` URLs, and `tamufiji.info` now returns **404**.
-
-So the sitemap handed to Google lists every page of this site at a dead address,
-and every link-preview card — every time an alum texts or posts a link — points
-there too. This is the one open item with a real, ongoing cost.
-
-**Fix:** Vercel → Settings → Environment Variables → set to
-`https://aggiefiji.com` → **redeploy**.
-
-> The redeploy is not optional. `NEXT_PUBLIC_` variables are baked in at build
-> time, so saving the value changes nothing until the next deployment.
-
-Then confirm `aggiefiji.com/sitemap.xml` emits `aggiefiji.com` URLs, and submit
-it to Google.
-
-### 2. The old Google API key may still be live
+### The old Google API key may still be live
 
 The two docs this file replaced disagreed: the old handover note claimed it was
 deleted in August, while `CLAUDE.md` listed it as still outstanding.
@@ -62,17 +48,38 @@ use, so deleting the old one breaks nothing.
 APIs & Services → Credentials. If a second, older key is listed, delete it.
 Deleting an already-deleted key is a no-op, so there is no risk in looking.
 
-### 3. `www.aggiefiji.com` serves instead of redirecting
+---
 
-**Confirmed live:** `https://www.aggiefiji.com` returns HTTP 200 with zero
-redirects. Both hostnames currently serve identical content.
+## ✅ Resolved — 7 September 2026
 
-The documented decision was apex-serves, `www`-redirects. That redirect is not
-configured. The cost is split analytics and two addresses for every page, on top
-of item 1 pointing canonicals at a third.
+### `NEXT_PUBLIC_SITE_URL` now reads `https://aggiefiji.com`
 
-**Fix:** Vercel → Settings → Domains → Edit on `www.aggiefiji.com` →
-**Redirect to** → `aggiefiji.com`.
+**Verified live:** `robots.txt` emits `Sitemap: https://aggiefiji.com/sitemap.xml`
+and every `<loc>` in `sitemap.xml` is on `aggiefiji.com`.
+
+It had been left at `https://tamufiji.info` through the domain move, and that
+domain now 404s — so the sitemap handed to Google, and every link-preview card,
+pointed at a dead address.
+
+> **If this variable is ever changed again, redeploy.** `NEXT_PUBLIC_` values are
+> compiled into the build, not read at request time, so saving a new value
+> changes nothing until the next deployment.
+
+**Next step, not yet done:** submit `https://aggiefiji.com/sitemap.xml` to Google
+Search Console. The URLs are correct now, but Google still has the old set.
+
+### `www.aggiefiji.com` redirects to the apex
+
+**Verified live:** `HTTP 308` → `https://aggiefiji.com/`, one hop, apex still
+serving 200.
+
+It had been serving its own copy of the site rather than redirecting, so both
+hostnames returned identical content. Set in Vercel → Settings → Domains → Edit
+on `www.aggiefiji.com` → Redirect to → `aggiefiji.com`.
+
+**308 Permanent, not the 307 default.** A 307 redirects visitors correctly but
+leaves search engines treating the two hostnames as separate pages, which is
+half of what the redirect exists to fix.
 
 > **There is no "primary domain" switch in Vercel.** Primary is expressed purely
 > as which way the redirect runs. Both DNS records are still needed — `www` has
@@ -271,7 +278,7 @@ trip.
 
 | Variable | Value |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | `https://aggiefiji.com` — **not optional.** Unset, everything points at `localhost:3000`. Baked in at build time |
+| `NEXT_PUBLIC_SITE_URL` | `https://aggiefiji.com` — **not optional.** Unset, everything points at `localhost:3000`. Baked in at build time, so a change needs a redeploy |
 | `GOOGLE_SHEETS_ID`, `GOOGLE_SHEETS_API_KEY` | From `.env.local` |
 | `GOOGLE_CALENDAR_ID` | From `.env.local` |
 | `GITHUB_OAUTH_ID`, `GITHUB_OAUTH_SECRET` | From the OAuth app |

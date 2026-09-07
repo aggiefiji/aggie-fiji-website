@@ -304,6 +304,5 @@ The sandbox has **no npm registry and no `googleapis.com`**.
    guidelines, the Fraunces + Inter pairing, social handles, newsletter
    distribution mechanics.
 
-Live-site items that are open right now — the wrong `NEXT_PUBLIC_SITE_URL`, the
-old Google API key, the missing `www` redirect — are tracked in
-**`OPERATIONS.md`**, not here.
+Live-site items are tracked in **`OPERATIONS.md`**, not here. One is open as of
+September 2026: whether the old Google API key was ever deleted.
